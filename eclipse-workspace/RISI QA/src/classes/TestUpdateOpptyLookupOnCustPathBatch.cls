@@ -31,7 +31,6 @@ private class TestUpdateOpptyLookupOnCustPathBatch {
     static testMethod void coverUpdateOpptyLookupOnCustPathBatch () {
         // Create data
         UtilityGeneral.setUpTestData ();
-
         Test.startTest();
         UpdateOpptyLookupOnCustPathBatch updateCustPath = new UpdateOpptyLookupOnCustPathBatch();
         string schTime = '0 0 * * 1-12 ? *';
@@ -39,28 +38,29 @@ private class TestUpdateOpptyLookupOnCustPathBatch {
 
         Database.executeBatch (updateCustPath, 200);
     	Test.stopTest();
-		Opportunity oppty = [SELECT Id FROM Opportunity LIMIT 1];
+    Opportunity oppty = [SELECT Id FROM Opportunity LIMIT 1];
     	// Assertion
     	Set<String> conIdSet = new Set<String> ();
     	for (p2s_base1__CustomerPath__c custPathInstance : [SELECT Id, p2s_base1__ToLifecycleStage__c,
-		    														p2s_base1__Opportunity__c,
-		    														p2s_base1__Contact__c
-		    												FROM p2s_base1__CustomerPath__c
-		    												ORDER BY p2s_base1__TransitionDateTime__c
-		    												DESC]) {
-    		if (UtilityGeneral.STAGE_RECYCLED.equals (custPathInstance.p2s_base1__ToLifecycleStage__c))
+                                                                p2s_base1__Opportunity__c,
+                                                                p2s_base1__Contact__c
+                                                        FROM p2s_base1__CustomerPath__c
+                                                        WHERE p2s_base1__Contact__c <> null
+                                                        ORDER BY p2s_base1__TransitionDateTime__c
+                                                        DESC]) {
+        if (UtilityGeneral.STAGE_RECYCLED.equals (custPathInstance.p2s_base1__ToLifecycleStage__c))
             conIdSet.add (custPathInstance.p2s_base1__Contact__c);
         if (!conIdSet.contains (custPathInstance.p2s_base1__Contact__c))
-    			System.assertEquals (oppty.Id, custPathInstance.p2s_base1__Opportunity__c);
-    		else
-    			System.assertEquals (null, custPathInstance.p2s_base1__Opportunity__c);
-    	} // End for
+            System.assertEquals (oppty.Id, custPathInstance.p2s_base1__Opportunity__c);
+        else
+            System.assertEquals (null, custPathInstance.p2s_base1__Opportunity__c);
+        } // End for
     } // End method
 
     // A method to cover populate MQI data trigger
     static testMethod void coverPopulateMQITriggerHandler () {
         // Create data
-        UtilityGeneral.setUpTestData ();
+    /*    UtilityGeneral.setUpTestData ();
         Contact con = [SELECT Id FROM Contact LIMIT 1];
         Contact conInstance = new Contact (Last_Product_Interest__c = 'Test Prod Int',
                                 Last_Product_Interest_Family__c = 'Prod Int Family',
@@ -119,6 +119,6 @@ private class TestUpdateOpptyLookupOnCustPathBatch {
                 System.assertEquals (leadInst.Last_Form_Fill_Web_Page__c, 
                             custPathExist.Form_Fill_Web_Page__c);
             }
-        }
+        } */
     }
 } // End class

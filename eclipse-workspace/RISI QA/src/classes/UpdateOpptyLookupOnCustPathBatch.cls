@@ -16,10 +16,6 @@
 
 global class UpdateOpptyLookupOnCustPathBatch implements Database.Batchable<sObject>,
                                                             Schedulable, Database.Stateful {
-    public String contactId;
-    global UpdateOpptyLookupOnCustPathBatch (String pConId) {
-        contactId = pConId;
-    }
 
     global Database.Querylocator start(Database.BatchableContext BC) {
         Integer maxRows = Test.isRunningTest() ? 10 : 
@@ -30,9 +26,8 @@ global class UpdateOpptyLookupOnCustPathBatch implements Database.Batchable<sObj
                                                 Opportunity.Revenue_Type__c,
                                                 CreatedDate
                                             FROM OpportunityContactRole
-                                            WHERE ContactId =: contactId
-                                            /*CreatedDate = YESTERDAY
-                                            OR CreatedDate = TODAY */
+                                            WHERE CreatedDate = YESTERDAY
+                                            OR CreatedDate = TODAY
                                             ORDER BY CreatedDate ASC
                                             LIMIT : maxRows]);
     }

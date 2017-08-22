@@ -3,7 +3,7 @@
     <apiVersion>35.0</apiVersion>
     <packageVersions>
         <majorNumber>1</majorNumber>
-        <minorNumber>8</minorNumber>
+        <minorNumber>13</minorNumber>
         <namespace>p2s_base1</namespace>
     </packageVersions>
     <status>Active</status>

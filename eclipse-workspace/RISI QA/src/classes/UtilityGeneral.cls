@@ -88,7 +88,6 @@ public with sharing class UtilityGeneral {
                                             p2s_base1__FromLifecycleStage__c = 'Name',
                                             p2s_base1__TransitionDateTime__c = Date.today());
         cpListToInsert.add (custPath5);
-        
         Opportunity oppty = new Opportunity (Name='Test', StageName= 'Prospecting', CloseDate = Date.today(),
                                             Revenue_Type__c = 'Subscription - New',
                                             p2s_base1__LifecycleStage__c = 'Name',
@@ -101,12 +100,14 @@ public with sharing class UtilityGeneral {
                                             p2s_base1__FromLifecycleStage__c = '',
                                             p2s_base1__TransitionDateTime__c = Date.today(),
                                             p2s_base1__Opportunity__c = oppty.Id,
-                                            p2s_base1__MostRecent__c = true);
+                                            p2s_base1__MostRecent__c = true,
+                                            Original_Opportunity_ID__c =oppty.Id );
         cpListToInsert.add (custPath6);
 
         if (!cpListToInsert.isEmpty())
             insert cpListToInsert;
-        OpportunityContactRole optyConRole = new OpportunityContactRole (ContactId = con.Id, OpportunityId = oppty.Id);
+       OpportunityContactRole optyConRole = new OpportunityContactRole (ContactId = con.Id,
+                                                                    OpportunityId = oppty.Id);
         insert optyConRole;
     } // End method
     
@@ -273,32 +274,26 @@ public with sharing class UtilityGeneral {
         List<p2s_base1__CustomerPath__c> custPathToUpdate = 
                                 new List<p2s_base1__CustomerPath__c> ();
         for (p2s_base1__CustomerPath__c custPath : fetchCPs (pConOptyIdMap)) {
-            System.debug ('custPath ==> '+custPath);
             if (STAGE_RECYCLED.equals (custPath.p2s_base1__ToLifecycleStage__c)) {
                 cpIdSet.add (custPath.p2s_base1__Contact__c);
             }
             OpportunityContactRole opConRole = pConOptyIdMap.get (custPath.p2s_base1__Contact__c);
             if (!cpIdSet.contains(custPath.p2s_base1__Contact__c) && // Incase if the latest
-            // transition is InOpenOppty the lookup should be disconnected for that one
+            // transition is InOpenOppty then lookup should be disconnected for that one
                 !STAGE_INOPENOPTY.equals (custPath.p2s_base1__ToLifecycleStage__c) &&
                 !freeTrialOpptyIdSet.contains (custPath.Original_Opportunity_ID__c)) {
-                if (/*String.isBlank (custPath.p2s_base1__Opportunity__c) && */
-                    custPath.p2s_base1__TransitionDateTime__c < opConRole.CreatedDate) {
-                        System.debug ('opConRole.OpportunityId ==> '+opConRole.OpportunityId);
-                        System.debug ('Original Oppty ==> '+custPath.Original_Opportunity_ID__c);
-                        custPath.p2s_base1__Opportunity__c = opConRole.OpportunityId != 
+                if (custPath.p2s_base1__TransitionDateTime__c < opConRole.CreatedDate) {
+                        custPath.p2s_base1__Opportunity__c =
+                        String.isNotBlank (custPath.Original_Opportunity_ID__c) && opConRole.OpportunityId != 
                         custPath.Original_Opportunity_ID__c ? custPath.Original_Opportunity_ID__c:
                         opConRole.OpportunityId;
-                        System.debug ('custPath 1 ==> '+custPath);
                     custPathToUpdate.add (custPath);
                 }
             } else if (String.isNotBlank (custPath.p2s_base1__Opportunity__c)) {
                 custPath.p2s_base1__Opportunity__c = null;
                 custPath.Original_Opportunity_ID__c = null;
-                System.debug ('custPath 2 ==> '+custPath);
                 custPathToUpdate.add (custPath);
             }
-                System.debug ('custPathToUpdate ==> '+custPathToUpdate);
             if (STAGE_INOPENOPTY.equals (custPath.p2s_base1__ToLifecycleStage__c) &&
                 cpIdSet.contains(custPath.p2s_base1__Contact__c)) {
                 cpIdSet.remove (custPath.p2s_base1__Contact__c);
