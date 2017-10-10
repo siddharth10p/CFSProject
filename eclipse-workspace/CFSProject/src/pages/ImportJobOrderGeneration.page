@@ -1,0 +1,165 @@
+<apex:page controller="ImportJobOrderGenerationController" showHeader="true" sidebar="false"
+                    applyHtmlTag="true" standardStylesheets="false">
+    <style>
+    .Label {
+       // width: 25%;
+    }
+    .inputText {
+        //width: 25%;
+    }
+      #phHeader, #tabContainer {
+        font-size: 85% !important;
+    }
+    .detail {
+       /* width: auto !important; */
+    }
+
+ /* Use For Waiting Process */
+#assign-action-spinner-main {
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color:rgba(0,0,0,.6);
+    height: 100%;
+    width: 100%;
+    z-index: 999;
+    align: center;
+    vertical-align: middle;
+}
+
+#assign-action-spinner-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1000;
+    background-color: #F5FCFF;
+    width: 204;
+    height: 40;
+    border-radius: 1em;
+    border: 1px solid #CEECFF;
+    padding: 20px 40px 20px 40px;
+    margin-left: -116px;
+    margin-top: -36px;
+}
+
+#assign-action-spinner-content img {
+    width: 80;
+    height: 30;
+    align: center;
+    vertical-align: middle;
+}
+
+#assign-action-spinner-content p {
+    display: inline;
+    font-size: 135%;
+    font-weight: bold;
+}
+
+    </style>
+    <!-- Status Bar -->
+        <apex:outputpanel >
+          <apex:actionStatus id="statusBar" layout="block">
+           <apex:facet name="start">
+             <div id="assign-action-spinner-main">
+                <div id="assign-action-spinner-content">
+                <img src="{!$Resource.LoadingImg}" style="height:60px; width=20px;"
+                        alt="Processing..."  title="Processing..." />
+                  &nbsp; &nbsp;
+                  <p>Processing...</p>
+               </div>
+              </div>
+            </apex:facet>
+          </apex:actionStatus>
+        </apex:outputpanel>
+      <!-- End Of Status -->
+    <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    </head>
+    <apex:form id="theForm" style="font-size: 85% !important;">
+<!--     <apex:pageBlock> -->
+    <apex:pageMessages />
+                
+    <div class="row">
+       <div class="col-sm-3 detail" id="itmDiv" style="margin: 0%;">
+         <div class="form-group">
+              <apex:outputLabel value="IGM NO:" styleClass="Label"/>
+<!--                            <apex:inputField value="{!doc1.IGM_NO__c}" styleClass="inputText" /> -->
+                </div>
+       <div class="form-group">
+                <apex:outputLabel value="Item no:" styleClass="Label"/>
+<!--                 <apex:inputField value="{!doc1.Name}" styleClass="inputText"/> -->
+            </div>
+       </div>
+       <div class="row">
+         <div class="col-sm-3" style="margin: 0%;">
+            <div class="form-group">
+                <apex:outputLabel value="Job Order NO:" styleClass="Label"/>
+<!--                 <apex:inputField value="{!joborder.Name}" styleClass="inputText" /> -->
+            </div>
+        <div class="col-sm-3" style="margin: 0%;">
+        <div class="form-group">
+           <apex:outputLabel value="Job Order Date" styleClass="Label"/>
+<!--                 <apex:inputField value="{!joborder.Job_Order_Date__c}" styleClass="inputText"/> -->
+        </div>
+       
+       </div>
+       </div>
+        
+        </div></div>
+        <apex:outputPanel id="thePanel">
+        <div >
+            <table id="theTable"  width="15%"   class="table table-striped table-bordered">
+                <thead>
+                    <tr >
+                        <th width="10%">Container No. </th>
+                        <th width="6%">Size</th>
+                        <th width="8%" >Conatiner Type</th>
+                        <th width="8%">Delivery Mode</th>
+                        <th width="12%">Custom Seal No.</th>
+                        <th width="10%" >Fcl/LcL</th>
+                        <th width="5%" >Reefer</th>
+                        <th width="5%" >ODC</th>
+                        <th width="5%" >HAZ</th>
+                        <th>Job Order Status</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+<!--                     <apex:repeat value="{!CaseList}" var="contr"> -->
+<!--                         <tr> -->
+<!--                             <td><apex:inputfield value="{!contr.Name}"/></td>  -->
+<!--                             <td><apex:inputfield value="{!contr.Container_Size__c}"/></td> -->
+<!--                             <td><apex:inputfield value="{!contr.Container_Type__c}"/></td> -->
+<!--                             <td><apex:inputfield value="{!contr.Delivery_Mode__c}" /></td> -->
+<!--                             <td><apex:inputfield value="{!contr.Seal_No_1__c}"/></td> -->
+<!--                             <td><apex:inputfield value="{!contr.FCL_LCL_mode__c}"/></td> -->
+<!--                             <td><apex:inputfield value="{!contr.Reefer_Status__c}" /></td> -->
+<!--                              <td><apex:inputfield value="{!contr.ODC_Status__c}" /></td> -->
+<!--                              <td><apex:inputfield value="{!contr.HAZ_Status__c}" /></td> -->
+<!--                              <td><apex:inputfield value="{!Contr.Import_Job_Order__r.Job_Order_Status__c}" /></td> -->
+<!--                         </tr> -->
+<!--                     </apex:repeat> -->
+                </tbody>
+            </table>
+            </div>
+        
+        <div align="center" draggable="false" >
+<!--             <apex:commandButton value="Save" action="{!SaveStatus}" reRender="thePanel"/> -->
+<!--             <apex:commandButton value="Search" action="{!Searchforstatus}" reRender="thePanel"/> -->
+            </div> </apex:outputPanel>
+<!--         </apex:pageBlock> -->
+        
+    </apex:form>
+    <apex:includeScript value="//code.jquery.com/jquery-1.12.4.js"/>
+    <apex:includeScript value="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"/>
+    <apex:includeScript value="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"/>
+    <script>
+        $(document).ready(function() {
+            $('#theTable').DataTable();
+        } );
+    </script>
+</apex:page>
