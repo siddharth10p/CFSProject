@@ -1,0 +1,32 @@
+<apex:page controller="UploadCSVController">
+    <apex:form id="theForm">
+    <apex:pageMessages id="theMsg"></apex:pageMessages>
+        <apex:pageBlock id="thePageBlock">
+            <apex:pageBlockSection columns="4"> 
+                  <apex:inputFile contentType="csv" value="{!csvBlobBody}"
+                    onchange="previewData ();"/>
+                  <apex:commandButton value="Import Data" action="{!uploadData}"
+                    disabled="{!showImportBtn==false}"/>
+                  <apex:pageBlockSection/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:pageBlock>
+        <apex:outputPanel id="thePanel">
+        <apex:variable var="rowCount" value="{!0}" />
+        <apex:pageBlockTable value="{!contWrpList}" var="data">
+            <apex:column headerValue="Sr No.">
+                <apex:variable var="rowCount" value="{!rowCount+1}" />
+                {!rowCount}
+            </apex:column>
+            <apex:column value="{!data.contNo}" headerValue="Container No."/>
+            <apex:column value="{!data.ISO}" headerValue="ISO"/>
+            <apex:column value="{!data.weight}" headerValue="Weight"/>
+            <apex:column value="{!data.status}" headerValue="Status"/>
+            <apex:column value="{!data.sealNo}" headerValue="Seal No."/>
+            <apex:column value="{!data.line}" headerValue="Line"/>
+        </apex:pageBlockTable>
+        </apex:outputPanel>
+    </apex:pageBlock>
+    <apex:actionfunction name="previewData" action="{!getDisCSVData}"/>
+    </apex:form>
+</apex:page>
