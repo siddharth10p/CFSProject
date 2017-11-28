@@ -1,19 +1,31 @@
-<apex:page controller="UploadCSVController">
+<apex:page controller="UploadCSVController" sidebar="False">
+<apex:sectionHeader title="Empty Cycle" subtitle="Job Order Generation(CSV Upload)" id="thesecH"/>
+<style>
+
+  .contentStyle { font-size:12px; }
+  .buttonStyle {height:100%; width:35%; background-color:green; text-align:center; padding-top:4px;}
+</style>
+    <head>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    </head>
     <apex:form id="theForm">
     <apex:pageMessages id="theMsg"></apex:pageMessages>
         <apex:pageBlock id="thePageBlock">
-            <apex:pageBlockSection columns="4"> 
+            <apex:pageBlockSection columns="2" style="margin-left: 25%"> 
                   <apex:inputFile contentType="csv" value="{!csvBlobBody}"
                     onchange="previewData ();"/>
-                  <apex:commandButton value="Import Data" action="{!uploadData}"
-                    disabled="{!showImportBtn==false}"/>
-                  <apex:pageBlockSection/>
+                  <apex:commandButton value="Generate Job Order" action="{!uploadData}"
+                    disabled="{!showImportBtn==false}" styleClass="buttonStyle"
+                    style="background:deepskyblue"/>
+                  <apex:pageBlockSection />
             </apex:pageBlockSection>
         </apex:pageBlock>
-        <apex:pageBlock>
+        <apex:pageBlock >
         <apex:outputPanel id="thePanel">
         <apex:variable var="rowCount" value="{!0}" />
-        <apex:pageBlockTable value="{!contWrpList}" var="data">
+        <apex:pageBlockTable value="{!contWrpList}" var="data" align="Center" style="width:70%">
             <apex:column headerValue="Sr No.">
                 <apex:variable var="rowCount" value="{!rowCount+1}" />
                 {!rowCount}
@@ -21,9 +33,10 @@
             <apex:column value="{!data.contNo}" headerValue="Container No."/>
             <apex:column value="{!data.ISO}" headerValue="ISO"/>
             <apex:column value="{!data.weight}" headerValue="Weight"/>
-            <apex:column value="{!data.status}" headerValue="Status"/>
-            <apex:column value="{!data.sealNo}" headerValue="Seal No."/>
             <apex:column value="{!data.line}" headerValue="Line"/>
+            <apex:column value="{!data.vessel}" headerValue="Vessel Name"/>
+            <apex:column value="{!data.vcn}" headerValue="VCN"/>
+            <apex:column value="{!data.constatus}" headerValue="Status"/>
         </apex:pageBlockTable>
         </apex:outputPanel>
     </apex:pageBlock>
