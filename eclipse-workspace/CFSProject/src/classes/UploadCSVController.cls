@@ -12,7 +12,8 @@ public with sharing class UploadCSVController {
     private List<String> csvRows;
     private static Boolean showError;
     public static Savepoint sp;
-    
+    private Map<String, String> contNumVesselDetailsMap;
+    private Map<String, String> vesselNameVCNMap;
 
     public uploadCSVController () {
         showImportBtn = false;
@@ -21,10 +22,8 @@ public with sharing class UploadCSVController {
 
     private static String insertJobOrder (ContainerWrpToDisplay conWrp) {
         sp = Database.setSavepoint ();
-        Vessel_Visit__c vessel = retrieveVesselRecord (conWrp.vessel, conWrp.vcn);
         Job_Order__c jobOrder = new Job_Order__c ();
         jobOrder.Line__c = retrieveAccRecord (conWrp.line);
-        jobOrder.IGM_NO__c = vessel == null? null: vessel.Id;
         jobOrder.RecordTypeId = fetchEmptyJobOrderType ();
         System.debug ('showError ==> '+ showError);
         if (showError == null || showError == false) {
@@ -38,13 +37,23 @@ public with sharing class UploadCSVController {
     public PageReference uploadData () {
         List<Container_Detail__c> listContainerToInsert = new List<Container_Detail__c> ();
         String jobOrderId = insertJobOrder (contWrpList.get (0)); //Job order for assignment
+        System.debug ('vesselNameVCNMap ==> '+ vesselNameVCNMap);
+        Map<String, Vessel_Visit__c> comKeyVesselMap = retrieveVessels (contNumVesselDetailsMap);
+        System.debug ('comKeyVesselMap ==> '+ comKeyVesselMap);
         System.debug ('jobOrderId ==> '+ jobOrderId);
         if (!contWrpList.isEmpty () && jobOrderId != null) {
             for (ContainerWrpToDisplay aContainer : contWrpList) {
+                String vesselId;
                 ISO_Code__c isoCode = retrieveISORecord (aContainer.ISO);
-                if (isoCode == null) {
+                if (isoCode == null || comKeyVesselMap == null) {
                     Database.rollback (sp); // rolling back everything
                     return null;
+                }
+                if (contNumVesselDetailsMap.containsKey (aContainer.contNo)) {
+                    String combinationKey = contNumVesselDetailsMap.get (aContainer.contNo);
+                    System.debug ('combinationKey ==> '+ combinationKey);
+                    if (comKeyVesselMap.containsKey (combinationKey))
+                        vesselId = comKeyVesselMap.get (combinationKey).Id;
                 }
                 Container_Detail__c container = new Container_Detail__c ();
                 container.Name = aContainer.contNo;
@@ -53,7 +62,7 @@ public with sharing class UploadCSVController {
                 container.ISO__c = isoCode.Id;
                 container.Container_Type__c = isoCode.Type__c;
                 container.Container_Size__c  = isoCode.Container_Size__c;
-             //   container.Vessel_Visit__c = ; 
+                container.Vessel_Id__c = vesselId; 
                 container.Job_Order_NO__c = jobOrderId;
                 System.debug ('container ==> '+ container);
                 listContainerToInsert.add (container);
@@ -72,27 +81,52 @@ public with sharing class UploadCSVController {
         return null;
     } // End method
 
+    // A method that splits the combination key and pring vessel name and vcn num
+    private static String extractVesselVCNNo (String pVesselVCN) {
+        System.debug ('pVesselVCN ==> '+ pVesselVCN);
+        List<String> vessVCN = pVesselVCN.split ('%-%');
+        System.debug ('vessVCN ==> '+ vessVCN);
+        String vessName;
+        if (vessVCN.size () > 1)
+        vessName = 'Vessel Name: ' + vessVCN.get (0) +' & VCN No: ' + vessVCN.get (1) + ' | ';
+        else {
+            vessName = vessVCN.get (0);
+        }
+        return vessName;
+    }
+
     // A method to fetch Vessel record
-    private static Vessel_Visit__c retrieveVesselRecord (String pVesselName, String pVCN) {
-        String vesselName = pVesselName.trim();
-        String vcn = pVCN.trim();
-        System.debug ('vesselName ==> '+ vesselName);
-        List<Vessel_Visit__c> vesselList = [SELECT Id,Name,Vessel_Name__c,VCN_VIA_No__c
+    private static Map<String, Vessel_Visit__c> retrieveVessels (Map<String, String> pVessNameVCNMap) {
+      System.debug ('pVessNameVCNMap ==> '+ pVessNameVCNMap);
+      Set<String> vesselFoundSet = new Set <String> ();
+      Map<String, Vessel_Visit__c> vesselKeyIdMap = new Map<String, Vessel_Visit__c> ();
+        for (Vessel_Visit__c aVessel : [SELECT Id, Name, Vessel_Name__c, VCN_VIA_No__c,
+                                                Vessel_Name__r.Name, Vessel_VCN_Key__c
                                     FROM Vessel_Visit__c
-                                    WHERE Vessel_Name__r.Name =: vesselName
-                                    AND VCN_VIA_No__c =: vcn];
-        System.debug ('vesselList ==> '+ vesselList);
-        if (vesselList.size () > 0) {
-            return vesselList.get (0);
+                                    WHERE Vessel_VCN_Key__c =: pVessNameVCNMap.values ()]) {
+            vesselKeyIdMap.put (aVessel.Vessel_VCN_Key__c , aVessel);
+            System.debug ('aVessel ==> '+ aVessel);
+            vesselFoundSet.add (aVessel.Vessel_VCN_Key__c);
+        }
+        System.debug ('vesselKeyIdMap ==> '+ vesselKeyIdMap);
+        String vesselName = '';
+        for (String contNo : pVessNameVCNMap.keySet ()) {
+            if (!vesselFoundSet.contains (pVessNameVCNMap.get (contNo))) {
+                vesselName += extractVesselVCNNo (pVessNameVCNMap.get (contNo));
+            }
+        }
+        if (String.isNotBlank (vesselName)) {
+            vesselName.removeEnd (' | ');
+            ApexPages.addmessage (new ApexPages.message (ApexPages.severity.Error,
+                   vesselName + ' does / do not exist kindly create vessel masters.'));
+            showError = true;
+        } else {
+            return vesselKeyIdMap;
             showError = false;
         }
-        else {
-            ApexPages.addmessage(new ApexPages.message(ApexPages.severity.Error,
-                   pVesselName + ' does not exist kindly create a vessel master.'));
-            showError = true;
-        }
-           return null;
+       return null;
     }
+
 // A method to fetch Account record
     private static String retrieveAccRecord (String pLine) {
         String lineName = pLine.trim();
@@ -149,10 +183,12 @@ public with sharing class UploadCSVController {
         showImportBtn = true;
         csvRows = new List<String> ();
         contWrpList = new List<ContainerWrpToDisplay> ();
+        vesselNameVCNMap = new Map<String, String> ();
+        contNumVesselDetailsMap = new Map<String, String> ();
         try{
             csvAsString = csvBlobBody.toString ();
             csvRows = csvAsString.split ('\n');
-            for(Integer i= 1; i<csvRows.size (); i++) {
+            for(Integer i= 1; i < csvRows.size (); i++) {
                ContainerWrpToDisplay contWrp = new ContainerWrpToDisplay ();
                List<String> fieldList = csvRows.get (i).split(',');
                contWrp.contNo = fieldList.get (1);
@@ -163,7 +199,11 @@ public with sharing class UploadCSVController {
                contWrp.vcn = fieldList.get (6);
                contWrp.constatus = fieldList.get (7);
                contWrpList.add (contWrp);
+               contNumVesselDetailsMap.put (contWrp.contNo, contWrp.vessel+'%-%'+contWrp.vcn);
+               vesselNameVCNMap.put (contWrp.vessel, contWrp.vcn);
             } // End for
+            System.debug ('vesselNameVCNMap ==> '+ vesselNameVCNMap);
+            System.debug ('contNumVesselDetailsMap ==> '+ contNumVesselDetailsMap);
         //insert acclist;
          //   return contWrpList;
         }

@@ -13,7 +13,8 @@
     <apex:form id="theForm">
     <apex:pageMessages id="theMsg"></apex:pageMessages>
         <apex:pageBlock id="thePageBlock">
-            <apex:pageBlockSection columns="2" style="margin-left: 25%"> 
+            <div style="margin-left: 25%">
+            <apex:pageBlockSection columns="2"> 
                   <apex:inputFile contentType="csv" value="{!csvBlobBody}"
                     onchange="previewData ();"/>
                   <apex:commandButton value="Generate Job Order" action="{!uploadData}"
@@ -21,6 +22,7 @@
                     style="background:deepskyblue"/>
                   <apex:pageBlockSection />
             </apex:pageBlockSection>
+            </div>
         </apex:pageBlock>
         <apex:pageBlock >
         <apex:outputPanel id="thePanel">
