@@ -1,0 +1,214 @@
+<apex:page controller="CreateInvoiceController" sidebar="false" extensions="CreateInvoiceUtil"
+                                applyHtmlTag="true" standardStylesheets="false">
+   <style>
+/*         .col-sm-3 { */
+/*             width: 20% !important; */
+/*         } */
+        .form-group {
+            width: 150%;
+        }
+        .Label {
+            width: 30%;
+        }
+        .inputText {
+            width: 30%;
+        }
+          #phHeader, #tabContainer {
+            font-size: 85% !important;
+        }
+/*          .detail { */
+/*              width: auto !important; */
+/*          } */
+        .inputField {
+            width: 100%;
+        }
+         .lookupField {
+            width: 85%;
+         }
+        tr td:last-child{
+            width:1%;
+            white-space:nowrap;
+        }
+/*         .table td.fit,  */
+/*         .table th.fit { */
+/*             white-space: nowrap; */
+/*             width: 1%; */
+/*         } */
+/*          .table-nonfluid { */
+/*              width: auto !important; */
+/*          } */
+ /* Use For Waiting Process */
+#assign-action-spinner-main {
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color:rgba(0,0,0,.6);
+    height: 100%;
+    width: 100%;
+    z-index: 999;
+    align: center;
+    vertical-align: middle;
+}
+
+#assign-action-spinner-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1000;
+    background-color: #F5FCFF;
+    width: 204;
+    height: 40;
+    border-radius: 1em;
+    border: 1px solid #CEECFF;
+    padding: 20px 40px 20px 40px;
+    margin-left: -116px;
+    margin-top: -36px;
+}
+#assign-action-spinner-content img {
+    width: 80px;
+    height: 30px;
+    align: center;
+    vertical-align: middle;
+}
+
+#assign-action-spinner-content p {
+    display: inline;
+    font-size: 135%;
+    font-weight: bold;
+}
+    </style>
+   
+    <!-- Status Bar -->
+        <apex:outputpanel >
+          <apex:actionStatus id="statusBar" layout="block">
+           <apex:facet name="start">
+             <div id="assign-action-spinner-main">
+                <div id="assign-action-spinner-content">
+                <img src="{!$Resource.LoadingImg}" style="height:50px; width=30px;"
+                        alt="Processing..."  title="Processing..." />
+                  &nbsp; &nbsp;
+                  <p>Processing...</p>
+               </div>
+              </div>
+            </apex:facet>
+          </apex:actionStatus>
+        </apex:outputpanel>
+      <!-- End Of Status -->
+    <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    </head>
+    <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <apex:stylesheet value="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
+
+    <apex:form >
+   <table id="theTable" class="table table-bordered" style="width:200px;border-collapse: collapse;border-spacing: 0;">
+    <thead>
+   
+    <tr><th>Job Order NO:</th>
+        <td class="contTable">
+        <apex:outputText value="{!jobOrd}" styleClass="inputText lookupField"/>
+      </td>
+      <td><apex:commandButton value="Create Invoice" action="{!createInvoiceAndItems}" /></td>
+    </tr>
+    </thead> 
+    </table> 
+        <div style="margin: 0%;" >
+            <table id="theTable" class="table table-bordered" style="width:200px;border-collapse: collapse;border-spacing: 0;"> 
+                <thead>
+                    <tr>
+                    
+                        <th><input type="Checkbox" class="display"
+                            onclick="checkAll(this,'checkedone');"
+                            title="Select all rows" />
+                        </th>
+                        <th class="header">Container No.</th>
+                        <th class="header">Size</th>
+                        <!-- <th class="header">JobOrder Id</th> -->
+                        <th class="header">Gate-in Date</th>
+                        <th class="header">Gate-out Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <apex:variable var="index" value="{!0}" />
+                    <apex:repeat value="{!createInvWrpList}" var="wpr">
+                        <tr>
+                            <td class="contTable">
+                                <apex:inputCheckbox value="{!wpr.isSelected}" id="checkedone"
+                                onclick="isAllCheckedStatus(this);" title="Select this row"/>
+                            </td> 
+                            <td class="contTable">
+                                <apex:outputfield value="{!wpr.cont.Name}"
+                                    styleClass="inputText lookupField"/>
+                            </td> 
+                            <td class="contTable">
+                                <apex:outputfield value="{!wpr.cont.Container_Size__c}"
+                                    styleClass="inputText lookupField"/>
+                            </td> 
+                            <!-- <td class="contTable">
+                                <apex:outputfield value="{!wpr.cont.Job_Order_NO__r.Name}"
+                                    styleClass="inputText lookupField"/>
+                            </td>  -->
+                            <td class="contTable">
+                                <apex:outputfield value="{!wpr.cont.Gate_In_Date__c}"
+                                    styleClass="inputField"/>
+                            </td>
+                            <td class="contTable">
+                                <apex:outputfield value="{!wpr.cont.Gate_Out_Date__c}"
+                                    styleClass="inputField"/>
+                            </td>
+                            
+                        </tr>
+                        <apex:variable var="index" value="{!index+1}" />
+                    </apex:repeat>
+                </tbody>
+            </table>
+        </div>
+    </apex:form>
+    <script type="text/javascript" >
+        function checkAll(cb,cbid) {
+            if (cb.checked == true) {
+                var inputElem = document.getElementsByTagName("input");
+                    for (var i=0; i<inputElem.length; i++) {
+                        if (inputElem[i].id.indexOf(cbid)!=-1){
+                            inputElem[i].checked = true;
+                        }
+                    }
+              } else {
+                var inputElem = document.getElementsByTagName("input");
+                for (var i=0; i<inputElem.length; i++) {
+                    if (inputElem[i].id.indexOf(cbid)!=-1) {
+                        inputElem[i].checked = false;
+                    }
+                }
+             }
+        }
+
+    function isAllCheckedStatus(cb) {
+         var inputElem = document.getElementsByTagName("input"); 
+           if (cb.checked == false) {
+                    for(var i=0; i<inputElem.length; i++) {
+                         if(inputElem[i].title.indexOf("Select all rows")!=-1){
+                            inputElem[i].checked = false;
+                        }
+                    }
+           }else{
+               var flag = true;
+                for(var i=0; i<inputElem.length; i++) {
+                    if(inputElem[i].title.indexOf("Select this row")!=-1){
+                       if(inputElem[i].checked == false) {
+                           flag = false;
+                       }
+                   }
+               }
+                for (var i=0; i<inputElem.length; i++) {
+                    if (inputElem[i].title.indexOf("Select all rows") != -1){
+                        if(flag == true){
+                        inputElem[i].checked = true;
+                     }
+                 }
+                }
+            }
+           }
+    </script>
+</apex:page>
