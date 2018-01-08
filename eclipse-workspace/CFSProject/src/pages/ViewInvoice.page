@@ -1,44 +1,26 @@
 <apex:page controller="ViewInvoiceController" sidebar="false" 
                                 applyHtmlTag="true" standardStylesheets="false">
  <style>
-/*         .col-sm-3 { */
-/*             width: 20% !important; */
-/*         } */ 
-        .form-group {
-            width: 150%;
-        }
-        .Label {
-            width: 30%;
-        }
-        .inputText {
-            width: 30%;
-        }
-          #phHeader, #tabContainer {
-            font-size: 85% !important;
-        }
-/*          .detail { */
-/*              width: auto !important; */
-/*          } */
-        .inputField {
-            width: 100%;
-        }
-         .lookupField {
-            width: 85%;
-         }
-        tr td:last-child{
-            width:1%;
-            white-space:nowrap;
-        }
-/*         .table td.fit,  */
-/*         .table th.fit { */
-/*             white-space: nowrap; */
-/*             width: 1%; */
-/*         } */
-/*          .table-nonfluid { */
-/*              width: auto !important; */
-/*          } */
+ table.buttonCol td {
+      padding: 10%;
+      width:20%;
+}
+ .pbBody {
+     padding: 0;
+     background-color: transparent;
+     background-image: none;
+     margin: 0;
+     border:0;
+     width: 100%;
+ }
+
+.bPageBlock {
+    background: transparent !important;
+    border:0 !important;
+}
+
  /* Use For Waiting Process */
-#assign-action-spinner-main {
+.assign-action-spinner-main {
     position: fixed;
     left: 0;
     top: 0;
@@ -51,22 +33,22 @@
 }
 
 #assign-action-spinner-content {
-    position: absolute;
+    position: absolute; 
     top: 50%;
     left: 50%;
     z-index: 1000;
     background-color: #F5FCFF;
     width: 204;
-    height: 40;
+    height: 40; 
     border-radius: 1em;
     border: 1px solid #CEECFF;
     padding: 20px 40px 20px 40px;
     margin-left: -116px;
     margin-top: -36px;
 }
-#assign-action-spinner-content img {
-    width: 80px;
-    height: 30px;
+.assign-action-spinner-content img {
+    width: 32;
+    height: 15;
     align: center;
     vertical-align: middle;
 }
@@ -76,13 +58,67 @@
     font-size: 135%;
     font-weight: bold;
 }
+
+        .form-group {
+            width: 150%;
+        }
+        .Label {
+            width: 30%;
+        }
+        .inputText {
+            width: 30%;
+        }
+          #phHeader, #tabContainer {
+            font-size: 85% !important;
+        }
+        .inputField {
+            width: 100%;
+        }
+         .lookupField {
+            width: 85%;
+         }
+        tr td:last-child{
+            width:1%;
+            white-space:nowrap;
+        }
+
+.underLine {
+    text-decoration: underline;
+}
+
+.customPopup {
+    background-color: white;
+    border-style: solid;
+    border-width: 2px;
+    left: 20%;
+    padding: 10px;
+    position: absolute;
+    z-index: 9999;
+    width: 500px;
+    top: 20%;
+}
+
+.disabledTextBox {
+    background-color: white;
+    border: 1px solid;
+    color: black;
+    cursor: default;
+    width: 90px;
+    display: table;
+    padding: 2px 1px;
+    text-align:right;
+}   
+
+.closeButton {
+    float: right;
+}
     </style>
    
     <!-- Status Bar -->
         <apex:outputpanel >
           <apex:actionStatus id="statusBar" layout="block">
            <apex:facet name="start">
-             <div id="assign-action-spinner-main">
+             <div class="assign-action-spinner-main">
                 <div id="assign-action-spinner-content">
                 <img src="{!$Resource.LoadingImg}" style="height:50px; width=30px;"
                         alt="Processing..."  title="Processing..." />
@@ -100,61 +136,192 @@
     </head>
     <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
     <apex:stylesheet value="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
-
-  
     <apex:form id="theForm">
         <apex:pageBlock >
-        <table id="theTable" class="table table-bordered" style="width:200px;border-collapse: collapse;border-spacing: 0;">
+        <table id="theTable" class="table table-bordered" style="width:200px;
+                                border-collapse: collapse;border-spacing: 0;">
     <thead>
-   
     <tr><th>Invoice No:</th>
-        <td class="contTable">
-            <apex:outputLink value="/{!invMainWrap.invoice.Id}" target="_blank">
+        <td class="contTable underLine">
+            <apex:outputLink value="/{!invMainWrap.invoice.Id}" target="_blank"
+                style="color:blue; font-weight:bold;">
                 {!invMainWrap.invoice.Name}
             </apex:outputLink>
-      </td>
+        </td>
+        <td class="tax">
+                <apex:commandButton value="Choose Additional Tariff" disabled="{!!showAddTaxBtn}"
+                    action="{!addAdditionalTaxItem}" id="taxBtn" reRender="popup"/>
+        </td>
+<!--         </div> -->
   </tr>
     </thead> 
     </table> 
-     <div   style="margin: 0%;" >
-            <table id="theTable" class="table table-bordered" style="width:200px;border-collapse:
+     <div style="margin: 0%;" >
+            <table id="theTable" class="table table-bordered" style="width:90%;border-collapse:
                              collapse;border-spacing: 0;">
                 <thead>
                     <tr>
-                        <th>Container Detail</th>
-                        <th>Amount</th>
-                        <th colspan="3">Tax Details</th>
+                        <th style="width: 4%;"><input type="Checkbox" class="display"
+                            onclick="checkAll(this,'checkedone');"
+                            title="Select all rows" />
+                        </th>
+                        <th style="width: 15%;">Container Detail</th>
+                        <th style="width: 15%;">Amount</th>
+                        <th style="width: 30%;">Tax Details</th>
+                        <th style="width: 15%;">Total Amount (Inclusive Taxes)
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <apex:repeat value="{!InvoiceData.invItemTaxMap}" var="invItm">
+                    <apex:repeat value="{!InvoiceData.invItmTaxWprList}" var="invItmWrp">
                         <tr>
-                            <td>{!invItm.Container_No__r.Name}</td>
-                            <td>
-                                <apex:outputField value="{!invItm.Amount__c}"/>
+                            <td><apex:inputCheckbox value="{!invItmWrp.isSelected}" 
+                                    id="checkedone" onclick="isAllCheckedStatus(this);"
+                                    title="Select this row"/>
                             </td>
-                            <td colspan="3" style="text-align: right;"> Total: &nbsp;
-                                <apex:outputField value=" {!invItm.Tax_Amount__c}"/>
-                                <apex:repeat value="{!InvoiceData.invItemTaxMap[invItm]}"
-                                                var="tx">
-                                    <tr>
-                                        <td colspan="2"></td>
-                                        <td>{!tx.Tax_Name__c}</td>
-                                        <td>
-                                            <apex:outputField value="{!tx.Tax_Rate__c}"/>
-                                        </td>
-                                        <td>
-                                            <apex:outputField value="{!tx.Tax_Amount__c}"/>
-                                        </td>
-                                    </tr>
-                                </apex:repeat>
+                            <td>
+                                <apex:outputLink value="/{!invItmWrp.containerId}"
+                                    target="_blank">
+                                    {!invItmWrp.container}
+                                </apex:outputLink>
+                            </td>
+                            <td>
+                                <apex:outputText value="Rs.{0, number,  0,000.00}">
+                                    <apex:param value="{!invItmWrp.amount}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                            <div style="float: right;">
+                            Total Tax: &nbsp;
+                                <apex:outputText value="Rs.{0, number, 0,000.00}">
+                                    <apex:param value="{!invItmWrp.taxAmt}" />
+                                </apex:outputText>
+                            </div>
+                                <br/><br/>
+                            <apex:dataList value="{!invItmWrp.taxInfoList}" var="tx"
+                                style="color: steelblue;">
+                                <div style="100%;">
+                                <apex:outputPanel >
+                                    <apex:outputText value="{!tx.taxName}"/> &nbsp; &nbsp;
+                                </apex:outputPanel>
+                                <apex:outputPanel >
+                                (<apex:outputText value="{!tx.percent}%"/>)&nbsp; &nbsp;
+                                </apex:outputPanel>
+                                <apex:outputPanel style="float:right;">
+                                <apex:outputText value="Rs.{0, number, 0,000.00}">
+                                    <apex:param value="{!tx.taxAmt}"/>
+                                </apex:outputText>
+                                </apex:outputPanel>
+                                </div>
+                            </apex:dataList>
+                            </td>
+                            <td>
+                            <div style="float: right;">
+                                <apex:outputText value="Rs.{0, number, 0,000.00}">
+                                    <apex:param value="{!invItmWrp.totAmt}"/>
+                                </apex:outputText>
+                            </div>
                             </td>
                         </tr>
                     </apex:repeat>
                 </tbody>
-                
             </table>
             </div>
+            <apex:outputPanel id="popup">
+                <apex:outputPanel id="popInnerOutputPnl" styleClass="customPopup" 
+                    layout="block" rendered="{!showPopup}">
+                     <apex:commandButton value="X" title="Close the popup"
+                        onclick="closepopup (); return false;" styleClass="closeButton" rerender="popup">
+                     </apex:commandButton>
+                     <apex:pageblockSection columns="2">
+                         <apex:pageblockSectionItem >
+                          <apex:outputLabel value="Tarrif Head" for="tarHead"></apex:outputLabel>
+                             <apex:inputField id="tarHead" value="{!addTariff.Tariff_Head__c}"/>
+                         </apex:pageblockSectionItem>
+                         <apex:pageblockSectionItem >
+                          <apex:outputLabel value="Rate" for="rate"></apex:outputLabel>
+                             <apex:inputField id="rate" value="{!addTariff.Rate__c}"/>
+                         </apex:pageblockSectionItem>
+                         <apex:pageblockSectionItem >
+                          <apex:outputLabel value="Quantity" for="qnty"></apex:outputLabel>
+                             <apex:inputField id="qnty" value="{!addTariff.Quantity__c}"/>
+                         </apex:pageblockSectionItem>
+                         <apex:pageblockSectionItem >
+                          <apex:outputLabel value="Tax Group" for="txGrp"></apex:outputLabel>
+                             <apex:inputField id="txGrp" value="{!addTariff.Tax_Group__c}"/>
+                         </apex:pageblockSectionItem>
+                     </apex:pageblockSection>
+                     <apex:commandButton value="Add Tariff" action="{!addAdditionalTariff}"
+                        styleClass="closeButton" rerender="popup">
+                     </apex:commandButton>
+                </apex:outputPanel>
+            </apex:outputPanel>
         </apex:pageBlock>
+        <apex:actionFunction name="closepopup" action="{!cancel}" id="closepopup"
+            reRender="theForm"/>
+        <apex:actionfunction name="enableBtn" action="{!enableAdditionalTaxBtn}"
+            reRender="taxBtn" status="statusBar"/>
+        <apex:actionfunction name="diableBtn" action="{!diableAdditionalTaxBtn}"
+            reRender="taxBtn" status="statusBar"/>
     </apex:form>
+
+    <!--  JS Script -->
+    <script type="text/javascript" >
+        function checkAll(cb,cbid) {
+            var taxRow = document.getElementsByClassName("tax");
+            if (cb.checked == true) {
+                var inputElem = document.getElementsByTagName("input");
+                    for (var i=0; i<inputElem.length; i++) {
+                        if (inputElem[i].id.indexOf(cbid)!=-1){
+                            inputElem[i].checked = true;
+                            for (var j=0; j<taxRow.length; j++) {
+                                enableBtn (); // Calling actionfunction
+                            }
+                        }
+                    }
+              } else {
+                var inputElem = document.getElementsByTagName("input");
+                for (var i=0; i<inputElem.length; i++) {
+                    if (inputElem[i].id.indexOf(cbid)!=-1) {
+                        inputElem[i].checked = false;
+                    }
+                }
+                for (var j=0; j<taxRow.length; j++) {
+                    diableBtn (); // Calling actionfunction
+                }
+             }
+        }
+
+    function isAllCheckedStatus(cb) {
+        var inputElem = document.getElementsByTagName("input");
+        var taxRow = document.getElementsByClassName("tax");
+            if (cb.checked == false) {
+                for (var i=0; i<inputElem.length; i++) {
+                    if (inputElem[i].title.indexOf("Select all rows") != -1) {
+                        inputElem[i].checked = false;
+                    }
+                }
+                diableBtn (); // Calling actionfunction
+           } else {
+                var flag = true;
+                for(var i=0; i<inputElem.length; i++) {
+                    if(inputElem[i].title.indexOf("Select this row")!=-1) {
+                       if(inputElem[i].checked == false) {
+                           flag = false;
+                       }
+                   }
+               }
+            for (var i=0; i<inputElem.length; i++) {
+                if (inputElem[i].title.indexOf("Select all rows") != -1) {
+                    if(flag == true) {
+                        inputElem[i].checked = true;
+                    }
+                }
+            }
+            for (var j=0; j<taxRow.length; j++) {
+                enableBtn ();
+            }
+        }
+    }
+    </script>
 </apex:page>
