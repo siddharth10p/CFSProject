@@ -78,8 +78,8 @@ public with sharing class CreateInvoiceController {
 
         // Constructor
         public createInvoiceWrapper (Container_Detail__c pCont, Boolean pIsSelected) {
-            cont = pCont;
-            isSelected = pIsSelected;
+            this.cont = pCont;
+            this.isSelected = pIsSelected;
         } // End constructor
     } // End wrapper class
 }

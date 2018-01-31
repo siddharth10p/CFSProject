@@ -1,18 +1,42 @@
 <apex:page controller="ImportDocumentEntryController" showHeader="true" sidebar="false"
                                 applyHtmlTag="true" standardStylesheets="false">
     <style>
+/*         .col-sm-3 { */
+/*             width: 20% !important; */
+/*         } */
+        .form-group {
+            width: 150%;
+        }
         .Label {
-          //  width: 25%;
+            width: 30%;
         }
         .inputText {
-          //  width: 25%;
+            width: 30%;
         }
           #phHeader, #tabContainer {
             font-size: 85% !important;
         }
-        .detail {
-           /* width: auto !important; */
+/*          .detail { */
+/*              width: auto !important; */
+/*          } */
+        .inputField {
+            width: 100%;
         }
+         .lookupField {
+            width: 85%;
+         }
+        tr td:last-child{
+            width:1%;
+            white-space:nowrap;
+        }
+/*         .table td.fit,  */
+/*         .table th.fit { */
+/*             white-space: nowrap; */
+/*             width: 1%; */
+/*         } */
+/*          .table-nonfluid { */
+/*              width: auto !important; */
+/*          } */
  /* Use For Waiting Process */
 #assign-action-spinner-main {
     position: fixed;
@@ -41,8 +65,8 @@
     margin-top: -36px;
 }
 #assign-action-spinner-content img {
-    width: 80;
-    height: 30;
+    width: 80px;
+    height: 30px;
     align: center;
     vertical-align: middle;
 }
@@ -60,7 +84,7 @@
            <apex:facet name="start">
              <div id="assign-action-spinner-main">
                 <div id="assign-action-spinner-content">
-                <img src="{!$Resource.LoadingImg}" style="height:60px; width=20px;"
+                <img src="{!$Resource.LoadingImg}" style="height:50px; width=30px;"
                         alt="Processing..."  title="Processing..." />
                   &nbsp; &nbsp;
                   <p>Processing...</p>
@@ -71,33 +95,38 @@
         </apex:outputpanel>
       <!-- End Of Status -->
     <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+<!--     <meta charset="utf-8"/> -->
+<!--     <meta name="viewport" content="width=device-width, initial-scale=1"/> -->
+<!--     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     </head>
-    <apex:form id="theForm" style="font-size: 85% !important;">
+    <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <apex:stylesheet value="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
+
+    <apex:form id="theForm" style="font-size: 85% !important; width: 100%;">
 <!--     <apex:pageBlock> -->
+          <apex:pageBlock title="Import Document Entry"> </apex:pageBlock> 
     <apex:pageMessages />
     <div class="row">
-        <div class="form-group col-lg-3" id="igmDiv" style="margin: 0%;">
-            <div >
+        <div class="col-sm-3 detail" id="igmDiv" style="margin: 0%;">
+            <div class="form-group">
               <apex:outputLabel value="IGM NO:" styleClass="Label"/>
                 <apex:inputField value="{!doc.IGM_NO__c}" styleClass="inputText"
-                    onchange="fetchIGM (this.value);"/>
-            </div>
-<!--         </div> -->
-<!--         <div class="col-sm-3 detail" id="itmDiv" style="margin: 0%;"> -->
-            <div>
-                <apex:outputLabel value="Item no:" styleClass="Label"/>
-                <apex:inputField value="{!doc.Name}" styleClass="inputText"/>
+                    onchange="fetchIGM (this.value);" id="igmId"/>
             </div>
         </div>
-        <div class="col-sm-3 detail detail" style="margin: 0%;">
+        <div class="col-sm-3 detail" id="itmDiv" style="margin: 0%;">
+            <div class="form-group">
+                <apex:outputLabel value="Item no:" styleClass="Label"/>
+                <apex:inputField value="{!doc.Name}" styleClass="inputText" id="itmId"/>
+            </div>
+        </div>
+        <div class="col-sm-3 detail" style="margin: 0%;">
             <div class="form-group">
                 <apex:commandButton value="Fetch Data" action="{!findDocumentEntry}"
-                    reRender="theForm" />
+                    reRender="theForm" id="fetdata" status="statusBar"
+                    oncomplete="checkFields ();" disabled="{!!isEditMode}"/>
             </div>
         </div>
         <div class="col-sm-3">
@@ -109,152 +138,169 @@
         <div class="col-sm-3 detail" style="margin: 0%;" id="leftFirstDiv">
         <div class="form-group">
             <apex:outputLabel value="B.O.E Number:" styleClass="Label"/>
-            <apex:inputField value="{!doc.B_O_E_Number__c}" styleClass="inputText"
-                rendered="{!isEditMode}"/>
-            <apex:outputField value="{!doc.B_O_E_Number__c}" styleClass="inputText"
-                rendered="{!!isEditMode}"/>
+            <apex:inputField value="{!doc.B_O_E_Number__c}" styleClass="inputText"  id="boId"/>
         </div>
         <div class="form-group">
             <apex:outputLabel value="Port of D:" styleClass="Label"/>
-            <apex:inputField value="{!doc.Port_of_D__c}" styleClass="inputText"
-                rendered="{!isEditMode}"/>
-            <apex:outputField value="{!doc.Port_of_D__c}" styleClass="inputText"
-                rendered="{!!isEditMode}"/>
-        </div>
+            <apex:inputField value="{!doc.Port_of_D__c}" styleClass="inputText" id="podId"/>
+            </div>
         <div class="form-group">
             <apex:outputLabel value="CHA:" styleClass="Label"/>
-            <apex:inputField value="{!doc.CHA__c}" styleClass="inputText"
-                rendered="{!isEditMode}"/>
-            <apex:outputField value="{!doc.CHA__c}" styleClass="inputText"
-                rendered="{!!isEditMode}"/>
+            <apex:inputField value="{!doc.CHA__c}" styleClass="inputText" id="chaId"/>
         </div>
         <div class="form-group">
             <apex:outputLabel value="Commodity:" styleClass="Label"/>
-            <apex:inputField value="{!doc.Commodity__c}" styleClass="inputText"
-                rendered="{!isEditMode}"/>
-            <apex:outputField value="{!doc.Commodity__c}" styleClass="inputText"
-                rendered="{!!isEditMode}"/>
+            <apex:inputField value="{!doc.Commodity__c}" styleClass="inputText" id="comId" />
         </div>
         <div class="form-group">
             <apex:outputLabel value="Accesable Value:" styleClass="Label"/>
-            <apex:inputField value="{!doc.Assesable_Value__c}" styleClass="inputText"
-                rendered="{!isEditMode}"/>
-            <apex:outputField value="{!doc.Assesable_Value__c}" styleClass="inputText"
-                rendered="{!!isEditMode}"/>
-        </div>
+            <apex:inputField value="{!doc.Assesable_Value__c}" styleClass="inputText" id="accValId"/>
+         </div>
         </div>
         <div class="col-sm-3 detail" style="margin: 0px;">
             <div class="form-group">
                 <apex:outputLabel value="B.O.E Date:" styleClass="Label"/>
-                <apex:inputField value="{!doc.B_O_E_Date__c}" styleClass="inputText"/>
+                <apex:inputField value="{!doc.B_O_E_Date__c}" styleClass="inputText"
+                    id="date" html-name="date" html-placeholder="MM/DD/YYY"/>
             </div>
             <div class="form-group">
                 <apex:outputLabel value="Port of L:" styleClass="Label"/>
-                <apex:inputField value="{!doc.Port_of_L__c}" styleClass="inputText"/>
+                <apex:inputField value="{!doc.Port_of_L__c}" styleClass="inputText" id="polId"/>
             </div>
             <div class="form-group">
                 <apex:outputLabel value="Importer:" styleClass="Label"/>
-                <apex:inputField value="{!doc.Importer__c}" styleClass="inputText"/>
+                <apex:inputField value="{!doc.Importer__c}" styleClass="inputText" id="impId"/>
             </div>
             <div class="form-group">
                 <apex:outputLabel value="No. Of Packages:" styleClass="Label"/>
-                <apex:inputField value="{!doc.Number_Of_Packages__c}" styleClass="inputText"/>
+                <apex:inputField value="{!doc.Number_Of_Packages__c}" styleClass="inputText" id="nopId"/>
             </div>
             <div class="form-group">
                 <apex:outputLabel value="Duty Value:" styleClass="Label"/>
-                <apex:inputField value="{!doc.Duty_Value__c}" styleClass="inputText"/>
+                <apex:inputField value="{!doc.Duty_Value__c}" styleClass="inputText" id="dutId"/>
             </div>
         </div>
         <div class="col-sm-3 detail" style="margin: 0px;">
            
             <div class="form-group">
                 <apex:outputLabel value="B.L Number:" styleClass="Label"/>
-                <apex:inputField value="{!doc.B_L_Number__c}" styleClass="inputText"/>
+                <apex:inputField value="{!doc.B_L_Number__c}" styleClass="inputText" id="bId"/>
             </div>
             <div class="form-group">
                 <apex:outputLabel value="Line:" styleClass="Label"/>
-                <apex:outputField value="{!doc.Line__c}" styleClass="inputText"/>
+                <apex:inputField value="{!doc.Line__c}" styleClass="inputText"/>
             </div>
             <div class="form-group">
                 <apex:outputLabel value="Weigth(In Kgs):" styleClass="Label"/>
-                <apex:inputField value="{!doc.Weigth_In_Kgs__c}" styleClass="inputText"/>
+                <apex:inputField value="{!doc.Weigth_In_Kgs__c}" styleClass="inputText" id="wetId"/>
             </div>
            
             <div class="form-group">
                 <apex:outputLabel value="IGM Date:" styleClass="Label"/>
-                <apex:outputField value="{!doc.IGM_Date__c}" styleClass="inputText"/>
+                <apex:inputField value="{!doc.IGM_Date__c}" styleClass="inputText"/>
             </div>
         </div>
             <div class="col-sm-3 detail" style="margin: 0%;">
                 <div class="form-group">
                     <apex:outputLabel value="B.L Date:" styleClass="Label"/>
-                <apex:inputField value="{!doc.B_L_Date__c}" styleClass="inputText"/>
+                    <apex:inputField value="{!doc.B_L_Date__c}"
+                    onfocus="DatePicker.pickDate(false, this, false);"
+                    styleClass="inputText" id="blId" html-placeholder="MM/DD/YYY"/>
                 </div>
                 <div class="form-group">
                     <apex:outputLabel value="Account Holder:" styleClass="Label"/>
-                <apex:inputField value="{!doc.Account_Holder__c}" styleClass="inputText"/>
+                <apex:inputField value="{!doc.Account_Holder__c}" styleClass="inputText" id="accId"/>
                 </div>
                 <div class="form-group">
                     <apex:outputLabel value="Volume(In Cu. Mts):" styleClass="Label"/>
-                <apex:inputField value="{!doc.Volume_In_Cu_Mts__c}" styleClass="inputText"/>
+                <apex:inputField value="{!doc.Volume_In_Cu_Mts__c}" styleClass="inputText" id="volId"/>
                 </div>
                 <div class="form-group">
                     <apex:outputLabel value="Cargo Discription:" styleClass="Label"/>
-                <apex:inputField value="{!doc.Cargo_Discription__c}" styleClass="inputText"/>
+                <apex:inputField value="{!doc.Cargo_Discription__c}" styleClass="inputText" id="cargoId"/>
                 </div>
             </div>
         </div>
-        <br/>
-        <br/>
+        <apex:pageBlock title="Container's Detail"> </apex:pageBlock> 
         <apex:outputPanel id="thePanel">
-        <div>
-            <table id="theTable" width="15%" class="table table-striped table-bordered">
+<!--         <div class="col-sm-1 detail detail" style="margin: 0%;">
+                table-striped
+         </div> -->
+        <div style="margin: 0%;">
+            <table id="theTable" class="table table-bordered"> 
                 <thead>
                     <tr>
-                        <th>Container No. </th>
-                        <th>ISO</th>
-                        <th>Size</th>
-                        <th>Conatiner Type</th>
-                        <th>Category </th>
-                        <th>Tare Wt.</th>
-                        <th>Delivery Mode</th>
-                        <th>Agent Seal No.</th>
-                        <th width="1%">No. Of Packages</th>
-                        <th>Weigth(In Kgs)</th>
-                        <th>Fcl/LcL</th>
-                        <th>Delivery No.</th>
+                        <th class="header">Container No.</th>
+                        <th class="header">ISO</th>
+                        <th class="header">Size</th>
+                        <th class="header">Container Type</th>
+                        <th class="header">Category</th>
+                        <th class="header">Tare Wt.</th>
+                        <th class="header">Delivery Mode</th>
+                        <th class="header">Agent Seal No.</th>
+                        <th class="header">No. Of Packages</th>
+                        <th class="header">Weigth(In Kgs)</th>
+                        <th class="header">Fcl/LcL</th>
+                        <th class="header">Delivery No.</th>
                     </tr>
                 </thead>
                 <tbody>
                     <apex:variable var="index" value="{!0}" />
                     <apex:repeat value="{!containers}" var="contr">
                         <tr>
-                            <td><apex:inputfield value="{!contr.Name}"/></td> 
-                            <td><apex:inputfield value="{!contr.ISO__c}" styleClass="inputText"
-                                onchange="fetchISO ('{!index}-' + this.value);"/></td> 
-                            <td><apex:inputfield value="{!con.Container_Size__c}"/></td>
-                            <td><apex:inputfield value="{!contr.Container_Type__c}"/></td>
-                            <td><apex:inputfield value="{!contr.Categary__c}"/></td>
-                            <td><apex:inputfield value="{!contr.Tare_Wt__c}"/></td>
-                            <td><apex:inputfield value="{!contr.Delivery_Mode__c}"/></td>
-                            <td><apex:inputfield value="{!contr.Seal_No_1__c}"/></td>
-                            <td ><apex:inputfield value="{!contr.No_Of_Packages__c}"/></td>
-                            <td><apex:inputfield value="{!contr.Weigth_In_Kgs__c}"/></td>
-                            <td><apex:inputfield value="{!contr.FCL_LCL_mode__c}"/></td>
-                            <td><apex:inputfield value="{!contr.Delivery__c}"/></td>
+                            <td class="contTable"><apex:inputfield value="{!contr.Name}"/></td> 
+                            <td class="contTable"><apex:inputfield value="{!contr.ISO__c}"
+                                styleClass="inputText lookupField"
+                                onchange="fetchISO ('{!index}-' + this.value);"
+                                style=""/></td> 
+                            <td class="contTable">
+                                <apex:inputfield value="{!contr.Container_Size__c}"
+                                    styleClass="inputField"/></td>
+                            <td class="contTable">
+                                <apex:inputfield value="{!contr.Container_Type__c}"
+                                    styleClass="inputField"/></td>
+                            <td class="contTable">
+                                <apex:inputfield value="{!contr.Categary__c}"
+                                    styleClass="inputField"/></td>
+                            <td class="contTable">
+                                <apex:inputfield value="{!contr.Tare_Wt__c}"
+                                    styleClass="inputField"/></td>
+                            <td class="contTable">
+                                <apex:inputfield value="{!contr.Delivery_Mode__c}"
+                                    styleClass="inputField"/></td>
+                            <td class="contTable">
+                                <apex:inputfield value="{!contr.Seal_No_1__c}"
+                                    styleClass="inputField"/></td>
+                            <td class="contTable">
+                                <apex:inputfield value="{!contr.No_Of_Packages__c}"
+                                    styleClass="inputField"/></td>
+                            <td class="contTable">
+                                <apex:inputfield value="{!contr.Weigth_In_Kgs__c}"
+                                    styleClass="inputField"/></td>
+                            <td class="contTable">
+                                <apex:inputfield value="{!contr.FCL_LCL_mode__c}"
+                                    styleClass="inputField"/></td>
+                            <td class="contTable">
+                                <apex:inputfield value="{!contr.Delivery__c}"
+                                    styleClass="inputField"/></td>
                         </tr>
                         <apex:variable var="index" value="{!index+1}" />
                     </apex:repeat>
                 </tbody>
             </table>
         </div>
-            <div align="center" draggable="false">  <apex:commandButton value="Add"
+            <div align="center" draggable="false">
+            <apex:commandButton value="Add"
                 action="{!addContainer}" reRender="thePanel" status="statusBar"/>
             <apex:commandButton value="Remove" action="{!removeContainer}" reRender="thePanel"
                 disabled="{!containers.size==1}" immediate="true" status="statusBar"/>
             <apex:commandButton value="Save" action="{!saveData}" reRender="theForm"
-                status="statusBar"/>
+                status="statusBar" oncomplete="checkFields ();" disabled="{!!isEditMode}"/>
+            <apex:commandButton value="Edit" disabled="{!isEditMode}"
+                action="{!editFields}" reRender="theForm" status="statusBar"/>
             </div>
+<!--             <div class="col-sm-1 detail detail" style="margin: 0%;"> -->
+<!--             </div> -->
          </apex:outputPanel>
 <!--         </apex:pageBlock> -->
     <apex:actionfunction name="fetchIGM" action="{!fetchIGM}" reRender="theForm"
@@ -269,9 +315,46 @@
     <apex:includeScript value="//code.jquery.com/jquery-1.12.4.js"/>
     <apex:includeScript value="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"/>
     <apex:includeScript value="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"/>
+    <apex:includeScript value="https://code.jquery.com/ui/1.12.1/jquery-ui.js"/>
+    
     <script>
-        $(document).ready(function() {
-            $('#theTable').DataTable();
-        } );
+       // var j = jQuery.noConflict();
+       // j ( function() {
+         //   alert ('Here!');
+    //        j ("#boeId").datepicker();
+    //    });
+    //    $(document).ready(function() {
+      //      $('#theTable').DataTable();
+
+   //     var date_input=$('input[html-name="date"]'); //our date input has the name "date"
+    //    var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
+     //   var options={
+      //      format: 'mm/dd/yyyy',
+       //     container: container,
+        //    todayHighlight: true,
+        //    autoclose: true,
+       // };
+        //    date_input.datepicker(options);
+       // });
+
+    window.onload = function() {
+        checkFields ();
+    };
+
+    function checkFields () {
+        var edit = {!isEditMode};
+        if (edit === false) {
+            debugger;
+            var inputText = document.querySelectorAll(".inputText,.inputField") 
+            //document.getElementsByClassName ("inputText");
+            for(var i=0 ; inputText.length > i; i++) {
+                inputText[i].disabled = true;
+            }
+            var lookups = document.getElementsByClassName ("lookupIcon");
+            for(var i=0 ; lookups.length > i; i++) {
+                lookups[i].style.display = "none";
+            }
+        }
+    }
     </script>
 </apex:page>

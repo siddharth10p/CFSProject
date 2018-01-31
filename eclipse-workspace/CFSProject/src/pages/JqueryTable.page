@@ -1,0 +1,44 @@
+<apex:page controller="JqueryTableController" sidebar="false" showHeader="false" >
+     <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <apex:stylesheet value="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css"/>
+<apex:form >
+    <apex:pageBlock >
+    <div class="container">
+    <table id="theTable">
+        <thead >
+        <tr class="success">
+            <th>Case Number</th>
+            <th>Company Name</th>
+            <th>Person Name</th>
+            <th>Status</th>
+            <th>Priority</th>
+            </tr>
+        </thead>
+        <tbody>
+        <apex:repeat Value="{!CaseList}" var="cs">
+        <tr>
+            <td>{!cs.CaseNumber}</td>
+            <td>{!cs.Account.Name}</td>
+            <td>{!cs.Contact.Name}</td>
+            <td>{!cs.Status}</td>
+            <td>{!cs.Priority}</td>
+        </tr>   
+        </apex:repeat>
+        </tbody>
+ 
+        </table>
+        </div>
+    </apex:pageBlock>
+    </apex:form>
+   <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"/>
+    <apex:includeScript value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"/>
+    <apex:includeScript value="//code.jquery.com/jquery-1.12.4.js"/>
+    <apex:includeScript value="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"/>
+    <script>
+        $(document).ready(function() {
+            $('#theTable').DataTable( {
+            });
+        } );
+    </script>
+
+</apex:page>

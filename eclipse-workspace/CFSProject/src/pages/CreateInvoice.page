@@ -29,14 +29,6 @@
             width:1%;
             white-space:nowrap;
         }
-/*         .table td.fit,  */
-/*         .table th.fit { */
-/*             white-space: nowrap; */
-/*             width: 1%; */
-/*         } */
-/*          .table-nonfluid { */
-/*              width: auto !important; */
-/*          } */
  /* Use For Waiting Process */
 #assign-action-spinner-main {
     position: fixed;
@@ -77,7 +69,6 @@
     font-weight: bold;
 }
     </style>
-   
     <!-- Status Bar -->
         <apex:outputpanel >
           <apex:actionStatus id="statusBar" layout="block">
@@ -98,11 +89,13 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     </head>
-    <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <apex:stylesheet
+        value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
     <apex:stylesheet value="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
 
     <apex:form >
-   <table id="theTable" class="table table-bordered" style="width:200px;border-collapse: collapse;border-spacing: 0;">
+   <table id="theTable" class="table table-bordered" style="width:200px;border-collapse:
+                                            collapse;border-spacing: 0;">
     <thead>
    
     <tr><th>Job Order NO:</th>
@@ -114,10 +107,10 @@
     </thead> 
     </table> 
         <div style="margin: 0%;" >
-            <table id="theTable" class="table table-bordered" style="width:200px;border-collapse: collapse;border-spacing: 0;"> 
+            <table id="theTable" class="table table-bordered" style="width:200px;
+                        border-collapse: collapse;border-spacing: 0;"> 
                 <thead>
                     <tr>
-                    
                         <th><input type="Checkbox" class="display"
                             onclick="checkAll(this,'checkedone');"
                             title="Select all rows" />
@@ -185,30 +178,30 @@
         }
 
     function isAllCheckedStatus(cb) {
-         var inputElem = document.getElementsByTagName("input"); 
-           if (cb.checked == false) {
-                    for(var i=0; i<inputElem.length; i++) {
-                         if(inputElem[i].title.indexOf("Select all rows")!=-1){
-                            inputElem[i].checked = false;
-                        }
+        var inputElem = document.getElementsByTagName("input"); 
+            if (cb.checked == false) {
+                for (var i=0; i<inputElem.length; i++) {
+                    if (inputElem[i].title.indexOf("Select all rows") != -1) {
+                        inputElem[i].checked = false;
                     }
-           }else{
-               var flag = true;
+                }
+           } else {
+                var flag = true;
                 for(var i=0; i<inputElem.length; i++) {
-                    if(inputElem[i].title.indexOf("Select this row")!=-1){
+                    if(inputElem[i].title.indexOf("Select this row")!=-1) {
                        if(inputElem[i].checked == false) {
                            flag = false;
                        }
                    }
                }
-                for (var i=0; i<inputElem.length; i++) {
-                    if (inputElem[i].title.indexOf("Select all rows") != -1){
-                        if(flag == true){
+            for (var i=0; i<inputElem.length; i++) {
+                if (inputElem[i].title.indexOf("Select all rows") != -1) {
+                    if(flag == true) {
                         inputElem[i].checked = true;
-                     }
-                 }
+                    }
                 }
             }
-           }
+        }
+    }
     </script>
 </apex:page>

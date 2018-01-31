@@ -54,7 +54,8 @@ public with sharing class CreateInvoiceUtil {
         Map<Revenue_Tariff_Rate__c, List<Tax_type__c>> revTerListTaxTypeMap = 
             new Map<Revenue_Tariff_Rate__c, List<Tax_type__c>> ();
         for (Revenue_Tariff_Rate__c revTarriff : [SELECT Id, From__c, To__c, Tax_Group__c,
-                                                        Rate__c 
+                                                        Rate__c,
+                                                        Tariff_Head__r.Activity_type__c
                                                     FROM Revenue_Tariff_Rate__c
                                                     WHERE For_Contract__c = : revConfig.Id]) {
             revTerListTaxTypeMap.put (revTarriff, new List<Tax_type__c> ());
@@ -134,7 +135,12 @@ public with sharing class CreateInvoiceUtil {
                 invItm.Tariff_Rate_No__c = revTar.Id;
                 invItm.Container_No__c = contNo;
                 invItm.Rate__c = revTar.Rate__c;
-                if (days > revTar.To__c) {
+               /* if (String.isNotBlank (revTar.Tariff_Head__r.Activity_type__c) &&
+                    revTar.Tariff_Head__r.Activity_type__c == 'Unit Based') {
+                    invItm.Quantity__c = 1;
+                    invItmListToInsert.add (invItm);
+                }
+                else */ if (days > revTar.To__c) {
                     invItm.Quantity__c = revTar.To__c - revTar.From__c;
                     invItmListToInsert.add (invItm);
                 } else if (days > revTar.From__c) {

@@ -3,10 +3,5 @@
     <apiVersion>40.0</apiVersion>
     <availableInTouch>false</availableInTouch>
     <confirmationTokenRequired>false</confirmationTokenRequired>
-    <label>ImportDocumentEntry</label>
-    <packageVersions>
-        <majorNumber>1</majorNumber>
-        <minorNumber>14</minorNumber>
-        <namespace>sf_chttr_apps</namespace>
-    </packageVersions>
+    <label>VF1</label>
 </ApexPage>

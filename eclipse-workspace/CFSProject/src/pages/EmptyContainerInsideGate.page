@@ -1,0 +1,210 @@
+<apex:page Controller="EmptyContainerInsideGateController" sidebar="false"  id="thepage">
+    <apex:sectionHeader title="Empty Cycle" subtitle="Empty Container Inward Gate" id="thesecH"/>
+    <apex:stylesheet value="{!URLFOR($Resource.StyleSheet1)}" />
+<!-- Status Bar -->
+        <apex:outputpanel >
+          <apex:actionStatus id="statusBar" layout="block">
+           <apex:facet name="start">
+             <div id="assign-action-spinner-main">
+                <div id="assign-action-spinner-content">
+                <img src="{!$Resource.LoadingImg}" style="height:50px; width=30px;"
+                        alt="Processing..."  title="Processing..." />
+                  &nbsp; &nbsp;
+                  <p>Processing...</p>
+               </div>
+              </div>
+            </apex:facet>
+          </apex:actionStatus>
+        </apex:outputpanel>
+      <!-- End Of Status -->
+    <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    </head>
+<apex:form id="theForm" >  
+    <div align="center" draggable="false" > 
+    <apex:commandButton value="New" disabled="{!isEditMode}" immediate="true"
+                            action="{!editFields}" reRender="theForm" status="statusBar" 
+                            styleClass="buttonStyle"  style="background:deepskyblue"/>
+    <!-- <apex:commandButton Value="Search" action="{!editFields}" reRender="theForm"   
+                                   styleClass="buttonStyle " 
+                                 style="background:deepskyblue"/> -->
+    </div>
+   <!--  <table cellpadding='5' cellspacing='5' width='500px' align="right" bgcolor="#E6E6FA">  
+          <thead>
+           <tr>
+              <th>Gate Pass No:</th><td><apex:outputField value="{!conIn.Gate_Pass_No__c}"
+                                        styleClass="inputField"/></td>
+              <th>Gate In Date:</th><td><apex:inputField value="{!conIn.Gate_In_Date__c}" 
+                                        styleClass="inputField" /></td> 
+           </tr>
+        </thead>
+    </table> -->
+    <div align="center">
+    <apex:pageBlock id="theblock">
+    <table cellpadding='5'  cellspacing='5' width='500px' id="thetable"    bgcolor="#E6E6FA">
+        <thead >
+           <tr> 
+              <th title="Container No">Container No:</th>
+              <td title="Container No"><apex:inputField value="{!con.Name}" id="conNo" 
+                                styleClass="inputField" onchange="fetchConDe(this.value);" /></td> 
+              <th title="Container Size">Container Size:</th>
+              <td title="Container Size"><apex:inputField value="{!con.Container_Size__c}" 
+                                         id="inputText" styleClass="inputField" /></td>
+              <th title="Container Type">Container Type:</th>
+              <td title="Container Type"><apex:inputField value="{!con.Container_Type__c}"
+                                         styleClass="inputField" /></td>
+               
+           </tr>
+           <tr>
+              <th title="Tare Weigth">Tare Weight:</th>
+              <td title="Tare Weigth"><apex:inputField value="{!con.Tare_Wt__c}" 
+                                      styleClass="inputField"/></td> 
+              <th title="Mode Of Arrival">Mode Of Arrival:</th>
+              <td title="Mode Of Arrival" ><apex:inputField value="{!conIn.Mode_Of_Arrival__c}" 
+                                           styleClass="inputField" /></td>
+           </tr>
+        </thead>
+    </table> 
+    <hr/>
+    <table cellpadding='5' cellspacing='5' width='500px'    >
+        <thead >
+            <tr>  
+              <th title="Account Holder c">Account Holder:</th>
+              <td><apex:inputField value="{!job.Account_Holder__c}" styleClass="inputField"/></td> 
+              <th title="Line">Line:</th>
+              <td><apex:inputField value="{!job.Line__c}"  styleClass="inputField"/></td>  
+              <th title="Liner Agent">Liner Agent:</th>
+              <td><apex:inputField value="{!job.Liner_Agent__c}" styleClass="inputField" /></td> 
+           </tr>
+           <tr> 
+              <th title="Issued Seal No">Issued Seal No:</th>
+              <td title="Issued Seal No"><apex:inputField value="{!con.Issued_Seal_No__c}" 
+                                         styleClass="inputField" /></td>
+              <th title="Port Out Date">Port Out Date:</th>
+              <td title="Port Out Date"><apex:inputField value="{!con.Port_Out_Date__c}" 
+                                        styleClass="inputField" /></td>
+              <th title="Port Out EIR No">Port Out EIR No:</th>
+              <td title="Port Out EIR No"><apex:inputField value="{!con.Port_Out_EIR_No__c}" 
+                                          styleClass="inputField" /></td>
+           </tr>
+        </thead>
+    </table>
+    <hr/>
+    <table cellpadding='5' cellspacing='5' width='500px'   bgcolor="#E6E6FA" >
+        <thead >
+             <tr>
+                <th title="Tranporter">Tranporter:</th>
+                <td title="Tranporter"><apex:inputField value="{!conIn.Transporter__c}" 
+                                       styleClass="inputField" /></td>
+                <th title="Transport Mode">Transport Mode:</th>
+                <td title="Transport Mode"><apex:inputField value="{!conIn.Transport__c}" 
+                                           styleClass="inputField" /></td>
+                <th title="Truck tag">Truck tag:</th>
+                <td title="Truck tag"><apex:inputField value="{!conIn.Truck_Tag__c}" 
+                                      styleClass="inputField" /></td>
+                <th title="Truck No">Truck No:</th>
+               <td title="Truck No"><apex:inputField value="{!conIn.Truck_No__c}" 
+                                    styleClass="inputField"/></td>
+              </tr>
+              <tr> 
+                <th title="Vechicle type">Vechicle Type:</th>
+                <td title="Vechicle type"><apex:inputField value="{!conIn.Vehicle_Type__c}" 
+                                          styleClass="inputField" /></td>
+                <th title="Cargo Type">Cargo Type:</th>
+                <td title="Cargo Type"><apex:inputField value="{!conIn.Cargo_Type__c}" 
+                                       styleClass="inputField" /></td>
+                <th title="Yard Id">Yard Id:</th>
+                <td title="Yard Id"><apex:inputField value="{!conIn.Yard_Id__c}" 
+                                    styleClass="inputField" /></td>
+                <th title="Driver Name">Driver Name:</th>
+                <td title="Driver Name"><apex:inputField value="{!conIn.Driver_Name__c}" 
+                                        styleClass="inputField" /></td>
+              </tr>
+        </thead>
+    </table>  
+    <hr/>
+    <table cellpadding='5' cellspacing='5' width='500px'      >
+        <thead> 
+            <tr>
+                <th title="Surveyor">Surveyor:</th>
+                <td title="Surveyor"><apex:inputField value="{!conIn.Surveyor__c}"  
+                                     styleClass="inputField" /></td>
+                <th title="Status Type">Status Type:</th>
+                <td title="Status Type"><apex:inputField value="{!conIn.Status_Type__c}" 
+                                        styleClass="inputField"  /></td>
+                <th title="Surveyer EIR No">Surveyer EIR No:</th>
+                <td title="Surveyer EIR No"><apex:inputField value="{!conIn.Surveyer_EIR_No__c}" 
+                                            styleClass="inputField" /></td>  
+            </tr>
+            <tr> 
+                <th title="Damage Remarks">Damage Remarks:</th>
+               <td title="Damage Remarks"><apex:inputField value="{!conIn.Damage_Remarks__c}" 
+                                          styleClass="inputField" /></td>
+                <th title="Container Tag">Container Tag:</th>
+                <td title="Container Tag"><apex:inputField value="{!con.Container_Tag__c}" 
+                                          styleClass="inputField" /></td>
+                <th title="DO No">DO No:</th>
+                <td title="DO No"><apex:inputField value="{!job.DO_No__c}" 
+                                          styleClass="inputField"/></td>
+             </tr>
+        </thead>
+    </table>	   
+    <hr/>
+    <table cellpadding='5' cellspacing='5' width='500px'   bgcolor="#E6E6FA">  
+        <thead> 
+            <tr>
+              <th>Port Of Arrival:</th><td><apex:inputField value="{!conIn.Port_Of_Arrival__c}" 
+                                           styleClass="inputField"/></td>
+              <th>Remarks:</th><td><apex:inputField value="{!conIn.Remarks__c}" 
+                                   styleClass="inputField"/></td> 
+           </tr>
+           </thead>
+           </table>	
+    </apex:pageBlock> 
+    </div>
+        <div align="center" draggable="false" > 
+            <apex:commandButton value="Save" action="{!saveData}" style="background:deepskyblue" 
+                                styleClass="buttonStyle"/> 
+          <!--   <apex:commandButton Value="Cancel" action="{!Cancel}" styleClass="buttonStyle "  
+                                style="background:deepskyblue"/> -->
+        </div>
+    <apex:includeScript value="//code.jquery.com/jquery-1.12.4.js"/>
+    <apex:includeScript value="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"/>
+    <apex:includeScript value="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"/>
+    <apex:includeScript value="https://code.jquery.com/ui/1.12.1/jquery-ui.js"/>
+    <apex:actionfunction name="fetchConDe" action="{!retrieveConDe}" reRender="theForm" 
+                         status="statusBar" immediate="true">
+        <apex:param id="conD" name="container" value="" />
+    </apex:actionfunction>
+    <apex:actionfunction name="searchConIn" action="{!searchConIn}" reRender="theForm" 
+    	                 status="statusBar" immediate="true">
+        <apex:param id="SconD" name="container" value="" />
+    </apex:actionfunction>
+    </apex:form>
+    <script>
+    fetchConDe.onchange  = function() {
+     checkFields ();
+    }
+   window.onload = function() {
+                 //    document.getElementById("conNo").focus();
+                   //  document.getElementById("thetable").readOnly = true; 
+                    checkFields ();
+                                }; 
+     function checkFields () {
+        var edit = {!isEditMode};
+        if (edit === false) {
+            debugger;
+            var inputText = document.querySelectorAll(".inputText,.inputField") 
+           // document.getElementsByClassName ("inputText");
+            for(var i=0 ; inputText.length > i; i++) {
+                inputText[i].disabled = true;
+            }
+            var lookups = document.getElementsByClassName ("lookupIcon");
+            for(var i=0 ; lookups.length > i; i++) {
+                lookups[i].style.display = "none";
+            }
+        }
+    }
+    </script>
+</apex:page>

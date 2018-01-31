@@ -1,0 +1,79 @@
+<apex:page Controller="JobOrderGateInConController" sidebar="false">
+ <apex:sectionHeader title="Empty Cycle" subtitle="Gate In Container Via Job Order" id="thesecH"/>
+ <apex:stylesheet value="{!URLFOR($Resource.UploadCsvStyle)}" />
+<!-- Status Bar -->
+        <apex:outputpanel >
+          <apex:actionStatus id="statusBar" layout="block">
+           <apex:facet name="start">
+             <div id="assign-action-spinner-main">
+                <div id="assign-action-spinner-content">
+                <img src="{!$Resource.LoadingImg}" style="height:50px; width=30px;"
+                        alt="Processing..."  title="Processing..." />
+                  &nbsp; &nbsp;
+                  <p>Processing...</p>
+               </div>
+              </div>
+            </apex:facet>
+          </apex:actionStatus>
+        </apex:outputpanel>
+      <!-- End Of Status -->
+   <head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	</head>	
+<apex:form id="theForm">
+<hr/>
+<apex:pageBlock id="thePageBlock">
+
+    <apex:pageBlockSection columns="2"  >  
+         <apex:inputField value="{!con.Job_Order_NO__c}" onchange="fetchJobOd(this.value);"
+                  id="conNo"   html-placeholder="Input Job Order No." />
+         <apex:outputField value="{!con.Job_Order_NO__r.Job_Order_Date__c}" />
+    </apex:pageBlockSection>
+    <apex:pageBlockSection columns="2" >
+                   <apex:outputField value="{!con.Job_Order_NO__r.DO_No__c}" />
+                   <apex:outputField value="{!con.Job_Order_NO__r.Job_Order_For__c}" />
+            
+    </apex:pageBlockSection>
+           
+</apex:pageBlock>
+<apex:pageBlock >
+        <apex:outputPanel id="thePanel">
+        <apex:variable var="rowCount" value="{!0}" />
+        <apex:pageBlockTable value="{!conList}" var="contr" align="Center" style="width:50%">
+            <apex:column headerValue="Sr No.">
+                <apex:variable var="rowCount" value="{!rowCount+1}" />
+                {!rowCount}
+            </apex:column>
+            <apex:column Value="{!contr.Name}" headerValue="Container No."/>
+            <apex:column Value="{!contr.Gate_In_Date__c}" id="gateInID" 
+                            headerValue="Gate In Date"/>
+            <apex:column headerValue="Gate In">
+            <apex:commandButton value="Gate In" id="gateInButton" 
+                               onclick="redirectToGetInPage ('{!contr.Id}');">
+            </apex:commandButton>
+            </apex:column>
+        </apex:pageBlockTable> 
+        </apex:outputPanel>
+    </apex:pageBlock>
+   <!--  <apex:actionfunction name="previewData" action="{!getDisCSVData}"/> -->
+    <apex:actionfunction name="fetchJobOd" action="{!fetchContainers}" reRender="theForm" 
+                         immediate="true">
+        <apex:param id="conD" name="jobOrd" value="" />
+    </apex:actionfunction>
+    <apex:actionfunction name="redirectToGetInPage" action="{!redirectToGetInPage}"
+        reRender="theForm" >
+        <apex:param id="contId" name="containerId" value="" />
+    </apex:actionfunction>
+</apex:form>
+
+<script type="text/javascript">
+
+    function onload(){
+        if(document.getElementById("gateInID").value != null)
+           document.getElementById("gateInButton").disabled = false;
+        else
+           document.getElementById("gateInButton").disabled = true;
+</script>
+
+</apex:page>

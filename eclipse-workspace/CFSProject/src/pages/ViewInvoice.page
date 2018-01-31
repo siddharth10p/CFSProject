@@ -1,4 +1,4 @@
-<apex:page controller="ViewInvoiceController" sidebar="false" 
+<apex:page controller="ViewInvoiceController" sidebar="false"
                                 applyHtmlTag="true" standardStylesheets="false">
  <style>
  table.buttonCol td {
@@ -59,8 +59,12 @@
     font-weight: bold;
 }
 
+div.form-group {
+    border-style: ridge;
+}
+
         .form-group {
-            width: 150%;
+            width: 100%;
         }
         .Label {
             width: 30%;
@@ -84,6 +88,7 @@
 
 .underLine {
     text-decoration: underline;
+    color:blue;
 }
 
 .customPopup {
@@ -94,7 +99,7 @@
     padding: 10px;
     position: absolute;
     z-index: 9999;
-    width: 500px;
+    width: 50%;;
     top: 20%;
 }
 
@@ -111,6 +116,46 @@
 
 .closeButton {
     float: right;
+}
+
+    /* tooltip */
+    .tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
 }
     </style>
    
@@ -138,25 +183,122 @@
     <apex:stylesheet value="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
     <apex:form id="theForm">
         <apex:pageBlock >
+            <apex:pageMessages />
+<!--         <div class="row"> -->
+<!--         <div class="col-sm-3 detail" id="igmDiv" style="margin: 0%;"> -->
+<!--             <div class="form-group"> -->
+<!--               <apex:outputLabel value="Invoice No." styleClass="Label"/> -->
+<!--                 <apex:outputLink value="/{!invMainWrap.invoice.Id}" target="_blank"> -->
+<!--                     {!invMainWrap.invoice.Name} -->
+<!--                 </apex:outputLink> -->
+<!--             </div> -->
+<!--         </div> -->
+<!--         <div class="col-sm-3 detail" id="itmDiv" style="margin: 0%;"> -->
+<!--             <div class="form-group"> -->
+<!--                 <apex:outputLabel value="Contractor" styleClass="Label"/> -->
+<!--                 <apex:outputField value="{!invMainWrap.invoice.Contractor__c}" -->
+<!--                         styleClass="inputText" id="itmId"/> -->
+<!--             </div> -->
+<!--         </div> -->
+<!--         <div class="col-sm-3 detail" style="margin: 0%;"> -->
+<!--             <div class="form-group"> -->
+<!--                 <apex:outputLabel value="Job Order" styleClass="Label"/> -->
+<!--                 <apex:outputField value="{!invMainWrap.invoice.Job_Order__c}" -->
+<!--                         styleClass="inputText" id="jbId"/> -->
+<!--             </div> -->
+<!--         </div> -->
+<!--         <div class="col-sm-3"> -->
+<!--             <div class="form-group"> -->
+<!--                 <apex:outputLabel value="Payment Mode" styleClass="Label"/> -->
+<!--                 <apex:outputField value="{!invMainWrap.invoice.Payment_Mode__c}" -->
+<!--                         styleClass="inputText"/> -->
+<!--             </div> -->
+<!--         </div> -->
+<!--     </div> -->
         <table id="theTable" class="table table-bordered" style="width:200px;
                                 border-collapse: collapse;border-spacing: 0;">
-    <thead>
-    <tr><th>Invoice No:</th>
+    <tr><td><apex:outputLabel value="Invoice No."/></td>
         <td class="contTable underLine">
-            <apex:outputLink value="/{!invMainWrap.invoice.Id}" target="_blank"
-                style="color:blue; font-weight:bold;">
+            <apex:outputLink value="/{!invMainWrap.invoice.Id}" target="_blank">
                 {!invMainWrap.invoice.Name}
             </apex:outputLink>
         </td>
-        <td class="tax">
-                <apex:commandButton value="Choose Additional Tariff" disabled="{!!showAddTaxBtn}"
-                    action="{!addAdditionalTaxItem}" id="taxBtn" reRender="popup"/>
+        <td><apex:outputLabel value="Contractor"/></td>
+        <td class="contTable underLine">
+            <apex:outputField value="{!invMainWrap.invoice.Contractor__c}" />
         </td>
-<!--         </div> -->
-  </tr>
-    </thead> 
-    </table> 
+        <td><apex:outputLabel value="Job Order"/></td>
+        <td class="contTable underLine">
+            <apex:outputField value="{!invMainWrap.invoice.Job_Order__c}" />
+        </td>
+        </tr>
+        <tr>
+        <td><apex:outputLabel value="Total Amount"/></td>
+        <td>
+            <apex:outputField value="{!invMainWrap.invoice.Grand_Total_of_Amount__c}" />
+        </td>
+        <td><apex:outputLabel value="Total Tax Amount"/></td>
+        <td>
+            <apex:outputField value="{!invMainWrap.invoice.Grand_Total_of_Tax_Amount__c}" />
+        </td>
+        <td><apex:outputLabel value="Grand Total"/></td>
+        <td>
+            <apex:outputField value="{!invMainWrap.invoice.Grand_Total_of_Total_Amount__c}" />
+        </td>
+    </tr>
+    </table>
+    <br/>
+    <div class="tax" style="text-align: center;">
+        <apex:commandButton value="Choose Additional Tariff" disabled="{!!showAddTaxBtn}"
+            action="{!addAdditionalTaxItem}" id="taxBtn" reRender="popup"/>
+    </div>
+    <br/>
      <div style="margin: 0%;" >
+        <apex:outputPanel id="thePanel">
+        <apex:outputPanel rendered="{!InvoiceData.invAddTariffList.size!=null}">
+        <table id="invAddTariff" class="table table-bordered" style="width:90%;border-collapse:
+                             collapse;border-spacing: 0;">
+            <thead>
+                    <tr>
+                        <th style="width: 12%; text-align:center;">Tariff Head</th>
+                        <th style="width: 12%; text-align:center;">Quantity</th>
+                        <th style="width: 12%; text-align:right;">Rate</th>
+                        <th style="width: 12%; text-align:right;">Amount</th>
+                        <th style="width: 25%; text-align:right;">Tax Details</th>
+                        <th style="width: 12%;">Total Amount (Inclusive Taxes)</th>
+                    </tr>
+            </thead>
+            <tbody>
+                <apex:repeat value="{!InvoiceData.invAddTariffList}" var="invAddTar">
+                    <tr>
+                        <td style="text-align:center;">
+                            <apex:outputField value="{!invAddTar.Tariff_Head__r.Name}"/>
+                        </td>
+                        <td style="text-align:center;">
+                            <apex:outputField value="{!invAddTar.Quantity__c}"/>
+                        </td>
+                        <td style="text-align:right;">
+                            <apex:outputField value="{!invAddTar.Rate__c}"/>
+                        </td>
+                        <td style="text-align:right;">
+                            <apex:outputField value="{!invAddTar.Amount__c}"/>
+                        </td>
+                        <td>
+                            <div style="text-align:right;">
+                            <apex:outputField value="{!invAddTar.Additional_Tax_Amount__c}"/>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="text-align:right;">
+                            <apex:outputField value="{!invAddTar.Total_Additional_Amount__c}"/>
+                            </div>
+                        </td>
+                    </tr>
+                </apex:repeat>
+            </tbody>
+        </table>
+        </apex:outputPanel>
+        </apex:outputPanel>
             <table id="theTable" class="table table-bordered" style="width:90%;border-collapse:
                              collapse;border-spacing: 0;">
                 <thead>
@@ -165,58 +307,135 @@
                             onclick="checkAll(this,'checkedone');"
                             title="Select all rows" />
                         </th>
-                        <th style="width: 15%;">Container Detail</th>
-                        <th style="width: 15%;">Amount</th>
-                        <th style="width: 30%;">Tax Details</th>
-                        <th style="width: 15%;">Total Amount (Inclusive Taxes)
-                        </th>
+                        <th style="width: 15%; text-align:center;">Container Detail</th>
+                        <th style="width: 12%; text-align:center;">Tariff Head</th>
+                        <th style="width: 12%; text-align:center;">Quantity</th>
+                        <th style="width: 12%; text-align:right;">Rate</th>
+                        <th style="width: 12%; text-align:right;">Amount</th>
+                        <th style="width: 25%; text-align:right;">Tax Details</th>
+                        <th style="width: 12%;">Total Amount (Inclusive Taxes)</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <apex:variable var="count" value="{!0}"/>
                     <apex:repeat value="{!InvoiceData.invItmTaxWprList}" var="invItmWrp">
                         <tr>
-                            <td><apex:inputCheckbox value="{!invItmWrp.isSelected}" 
+                            <td rowspan="{!invItmWrp.invItmList.size+2+count+IF(ISNULL(invItmWrp.itmAddTariffList),0,invItmWrp.itmAddTariffList.size)}">
+                                <apex:inputCheckbox value="{!invItmWrp.isSelected}" 
                                     id="checkedone" onclick="isAllCheckedStatus(this);"
                                     title="Select this row"/>
                             </td>
-                            <td>
+                            <td rowspan="{!invItmWrp.invItmList.size+2+count+IF(ISNULL(invItmWrp.itmAddTariffList),0,invItmWrp.itmAddTariffList.size)}">
                                 <apex:outputLink value="/{!invItmWrp.containerId}"
                                     target="_blank">
                                     {!invItmWrp.container}
                                 </apex:outputLink>
                             </td>
-                            <td>
+<!--                         <apex:variable var="tariffHead" value="" /> -->
+                        <apex:repeat value="{!invItmWrp.invItmList}" var="invItm">
+                            <tr>
+<!--                                 <apex:outputPanel rendered="{!tariffHead!=invItm.Tariff_Rate_No__r.Tariff_Head__r.Name}"> -->
+<!--                                 rowspan="{!contTariffCountMap[invItmWrp.container][invItm.Tariff_Rate_No__r.Tariff_Head__r.Name]}" -->
+                                <td style="text-align:center;" >
+                                    <apex:outputField value="{!invItm.Tariff_Rate_No__r.Tariff_Head__r.Name}"/>
+                                </td>
+<!--                                 </apex:outputPanel> -->
+                                <td style="text-align:center;">
+                                    <apex:outputField value="{!invItm.Quantity__c}"/>
+                                </td>
+                                <td style="text-align:right;">
+                                    <apex:outputField value="{!invItm.Rate__c}"/>
+                                </td>
+                                <td style="text-align:right;">
+                                    <apex:outputField value="{!invItm.Amount__c}"/>
+                                </td>
+                                <td>
+                                    <div style="text-align:right;">
+                                    <apex:outputField value="{!invItm.Tax_Amount__c}"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="text-align:right;">
+                                    <apex:outputField value="{!invItm.Total_Amount__c}"/>
+                                    </div>
+                                </td>
+                            </tr>
+<!--                         <apex:variable var="tariffHead" value="{!invItm.Tariff_Rate_No__r.Tariff_Head__r.Name}"/> -->
+                        </apex:repeat>
+                        <apex:repeat value="{!invItmWrp.itmAddTariffList}" var="addTariff">
+                            <tr>
+                                <td style="text-align:center;">
+                                    <apex:outputField value="{!addTariff.Tariff_Head__r.Name}"/>
+                                </td>
+                                <td style="text-align:center;">
+                                    <apex:outputField value="{!addTariff.Quantity__c}"/>
+                                </td>
+                                <td style="text-align:right;">
+                                    <apex:outputField value="{!addTariff.Rate__c}"/>
+                                </td>
+                                <td style="text-align:right;">
+                                    <apex:outputField value="{!addTariff.Amount__c}"/>
+                                </td>
+                                <td>
+                                    <div style="text-align:right;">
+                                    <apex:outputField value="{!addTariff.Additional_Tax_Amount__c}"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="text-align:right;">
+                                    <apex:outputField value="{!addTariff.Total_Additional_Amount__c}"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                            <td colspan="3" 
+                            style="font-weight:bold; color:darkblue; text-align:center;">
+                                Grand Total : 
+                            </td>
+                            <td style="font-weight:bold; color:darkblue; text-align:right;">
                                 <apex:outputText value="Rs.{0, number,  0,000.00}">
                                     <apex:param value="{!invItmWrp.amount}"/>
                                 </apex:outputText>
                             </td>
                             <td>
-                            <div style="float: right;">
-                            Total Tax: &nbsp;
+                            <div style="text-align:right; font-weight:bold; color:darkblue;">
+<!--                             Total Tax: &nbsp; -->
                                 <apex:outputText value="Rs.{0, number, 0,000.00}">
                                     <apex:param value="{!invItmWrp.taxAmt}" />
                                 </apex:outputText>
+<!--                                 <apex:outputText value="Rs.{0, number, 0,000.00}" rendered="{!invItmWrp.addTaxAmt!=null}"> -->
+<!--                                     <apex:param value="{!invItmWrp.addTaxAmt}" /> -->
+<!--                                 </apex:outputText> -->
                             </div>
-                                <br/><br/>
-                            <apex:dataList value="{!invItmWrp.taxInfoList}" var="tx"
-                                style="color: steelblue;">
-                                <div style="100%;">
-                                <apex:outputPanel >
-                                    <apex:outputText value="{!tx.taxName}"/> &nbsp; &nbsp;
-                                </apex:outputPanel>
-                                <apex:outputPanel >
-                                (<apex:outputText value="{!tx.percent}%"/>)&nbsp; &nbsp;
-                                </apex:outputPanel>
-                                <apex:outputPanel style="float:right;">
-                                <apex:outputText value="Rs.{0, number, 0,000.00}">
-                                    <apex:param value="{!tx.taxAmt}"/>
-                                </apex:outputText>
-                                </apex:outputPanel>
-                                </div>
-                            </apex:dataList>
+<!--                             <br/><br/> -->
+<!--                         <body style="text-align:center;"> -->
+<!--                             <div class="tooltip">Hover over me -->
+<!--                                 <span class="tooltiptext">Tooltip text</span> -->
+<!--                             </div> -->
+<!--                             </body> -->
+<!--                             <div class="tooltip">Show Details -->
+<!--                                 <span class="tooltiptext"> -->
+<!--                                     <apex:dataList value="{!invItmWrp.taxInfoList}" var="tx" -->
+<!--                                     style="color: steelblue; font-size: 85%;"> -->
+<!--                                     <div style="100%;"> -->
+<!--                                     <apex:outputPanel > -->
+<!--                                         <apex:outputText value="{!tx.taxName}"/> &nbsp; &nbsp; -->
+<!--                                     </apex:outputPanel> -->
+<!--                                     <apex:outputPanel > -->
+<!--                                     (<apex:outputText value="{!tx.percent}%"/>)&nbsp; &nbsp; -->
+<!--                                     </apex:outputPanel> -->
+<!--                                     <apex:outputPanel style="float:right;"> -->
+<!--                                     <apex:outputText value="Rs.{0, number, 0,000.00}"> -->
+<!--                                     <apex:param value="{!tx.taxAmt}"/> -->
+<!--                                     </apex:outputText> -->
+<!--                                     </apex:outputPanel> -->
+<!--                                     </div> -->
+<!--                                 </apex:dataList> -->
+<!--                                 </span> -->
+<!--                             </div> -->
                             </td>
                             <td>
-                            <div style="float: right;">
+                            <div style="text-align:right; font-weight:bold; color:darkblue;">
                                 <apex:outputText value="Rs.{0, number, 0,000.00}">
                                     <apex:param value="{!invItmWrp.totAmt}"/>
                                 </apex:outputText>
@@ -250,9 +469,13 @@
                           <apex:outputLabel value="Tax Group" for="txGrp"></apex:outputLabel>
                              <apex:inputField id="txGrp" value="{!addTariff.Tax_Group__c}"/>
                          </apex:pageblockSectionItem>
+                         <apex:pageblockSectionItem >
+                          <apex:outputLabel value="Container" for="contnr"></apex:outputLabel>
+                             <apex:inputField id="contnr" value="{!addTariff.Container_Detail__c}"/>
+                         </apex:pageblockSectionItem>
                      </apex:pageblockSection>
                      <apex:commandButton value="Add Tariff" action="{!addAdditionalTariff}"
-                        styleClass="closeButton" rerender="popup">
+                        styleClass="closeButton" rerender="popup, theForm">
                      </apex:commandButton>
                 </apex:outputPanel>
             </apex:outputPanel>

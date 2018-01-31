@@ -6,6 +6,7 @@ public with sharing class UploadCSVController {
     public List<Container_Detail__c> containerList      {get; set;}
     public List<ContainerWrpToDisplay> contWrpList      {get; set;}
     public Boolean showImportBtn                        {get; set;}
+    public Job_Order__c jo                              {get; set;}
 
     // Private variables
     private String csvAsString;
@@ -17,14 +18,20 @@ public with sharing class UploadCSVController {
 
     public uploadCSVController () {
         showImportBtn = false;
+        if (jo == null)
+        jo = new Job_Order__c ();
         // Initializing variables
     } // End constructor
 
-    private static String insertJobOrder (ContainerWrpToDisplay conWrp) {
+    private String insertJobOrder (ContainerWrpToDisplay conWrp) {
         sp = Database.setSavepoint ();
-        Job_Order__c jobOrder = new Job_Order__c ();
+        System.debug('conWrp ==>'+ conWrp);
+        System.debug('jo ==>'+ jo);
+        Job_Order__c jobOrder = jo;
         jobOrder.Line__c = retrieveAccRecord (conWrp.line);
         jobOrder.RecordTypeId = fetchEmptyJobOrderType ();
+        jobOrder.Job_Order_Date__c = System.now ();
+        jobOrder.Job_Order_For__c = 'IN';
         System.debug ('showError ==> '+ showError);
         if (showError == null || showError == false) {
             insert jobOrder;
@@ -36,6 +43,7 @@ public with sharing class UploadCSVController {
 
     public PageReference uploadData () {
         List<Container_Detail__c> listContainerToInsert = new List<Container_Detail__c> ();
+        System.debug ('contWrpList == > '+ contWrpList);
         String jobOrderId = insertJobOrder (contWrpList.get (0)); //Job order for assignment
         System.debug ('vesselNameVCNMap ==> '+ vesselNameVCNMap);
         Map<String, Vessel_Visit__c> comKeyVesselMap = retrieveVessels (contNumVesselDetailsMap);
@@ -64,6 +72,8 @@ public with sharing class UploadCSVController {
                 container.Container_Size__c  = isoCode.Container_Size__c;
                 container.Vessel_Id__c = vesselId; 
                 container.Job_Order_NO__c = jobOrderId;
+                container.Job_Order_Status__c= True;
+                container.RecordTypeId=fetchEmptyContainerType();
                 System.debug ('container ==> '+ container);
                 listContainerToInsert.add (container);
             } // End for
@@ -72,8 +82,9 @@ public with sharing class UploadCSVController {
                 try {
                     insert listContainerToInsert;
                     return new PageReference('/'+ jobOrderId);
-                } catch (DmlException e) {
+                } catch (DmlException ex) {
                     Database.rollback (sp); // rolling back everything
+                    ApexPages.addmessages (ex);
                     return null;
                 }
             }
@@ -116,7 +127,7 @@ public with sharing class UploadCSVController {
             }
         }
         if (String.isNotBlank (vesselName)) {
-            vesselName.removeEnd (' | ');
+            //vesselName.removeEnd (' | ');
             ApexPages.addmessage (new ApexPages.message (ApexPages.severity.Error,
                    vesselName + ' does / do not exist kindly create vessel masters.'));
             showError = true;
@@ -167,10 +178,11 @@ public with sharing class UploadCSVController {
         return [SELECT Id FROM RecordType WHERE Name = 'Empty Job Order' LIMIT 1].Id;
     }
 
-    // A method to fetch Empty Job Order record type
+    // A method to fetch Empty Container Details record type
     private static String fetchEmptyContainerType () {
         return [SELECT Id FROM RecordType WHERE Name = 'Empty Container Details' LIMIT 1].Id;
     }
+    
 
     // A method that creates ISO code if doesn't exist
     private static String createISO (String pISOCode) {
@@ -191,13 +203,13 @@ public with sharing class UploadCSVController {
             for(Integer i= 1; i < csvRows.size (); i++) {
                ContainerWrpToDisplay contWrp = new ContainerWrpToDisplay ();
                List<String> fieldList = csvRows.get (i).split(',');
-               contWrp.contNo = fieldList.get (1);
-               contWrp.ISO = fieldList.get (2);
-               contWrp.weight = fieldList.get (3);
-               contWrp.line = fieldList.get (4);
-               contWrp.vessel = fieldList.get (5);
-               contWrp.vcn = fieldList.get (6);
-               contWrp.constatus = fieldList.get (7);
+               contWrp.contNo = fieldList.get (1).trim();
+               contWrp.ISO = fieldList.get (2).trim();
+               contWrp.weight = fieldList.get (3).trim();
+               contWrp.line = fieldList.get (4).trim();
+               contWrp.vessel = fieldList.get (5).trim();
+               contWrp.vcn = fieldList.get (6).trim();
+               contWrp.constatus = fieldList.get (7).trim();
                contWrpList.add (contWrp);
                contNumVesselDetailsMap.put (contWrp.contNo, contWrp.vessel+'%-%'+contWrp.vcn);
                vesselNameVCNMap.put (contWrp.vessel, contWrp.vcn);

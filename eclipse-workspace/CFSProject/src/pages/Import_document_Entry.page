@@ -1,0 +1,127 @@
+<apex:page Controller="ICD" sidebar="false" >
+   
+<apex:form >  <table>
+            
+        <thead>
+        <th>::::Import Document Entry::::</th>
+        </thead>
+    </table>
+ 
+        <table cellpadding='5' cellspacing='0' width='500px' >
+  
+            <thead>
+                 <apex:repeat value="{!ddd}" var="n" >
+             <tr>
+               <th>IGM No.</th><td><apex:inputField value="{!n.IGM_NO__c}"/></td>
+                <th>Item no:</th><td><apex:inputField value="{!n.Item_No__c}" />
+                                     <apex:commandButton value=">" action="{!SearchIGMITEM}"/>
+                                 </td> 
+                 
+                <th>ISO:</th><td><apex:inputField value="{!n.ISO__c}" required="false" /></td>
+            </tr>
+                     
+               <tr> <th>B.O.E Number:</th><td><apex:inputField value="{!n.B_O_E_Number__c}" /></td>
+              <th>B.O.E Date:</th><td><apex:inputField value="{!n.B_O_E_Date__c}" /></td>
+                    <th>B.L Number:</th><td><apex:inputField value="{!n.B_L_Number__c}" /></td>
+                    <th>B.L Date:</th><td><apex:inputField value="{!n.B_L_Date__c}" /></td>     
+               </tr>
+               <tr> <th>Port of D:</th><td><apex:inputField value="{!n.Port_of_D__c}" /></td>
+                    <th>Port of L:</th><td><apex:inputField value="{!n.Port_of_L__c}" /></td>
+               </tr>
+               <tr> <th>CHA:</th><td><apex:inputField value="{!n.CHA__c}" /></td>
+                    <th>Importer:</th><td><apex:inputField value="{!n.Importer__c}" /></td>
+                   <th>Line:</th><td><apex:inputField value="{!n.Line__c}" /></td>
+                   <th>Account Holder:</th><td><apex:inputField value="{!n.Account_Holder__c}" /></td>
+               </tr>
+               <tr> <th>Commodity:</th><td><apex:inputField value="{!n.Commodity__c}" /></td>
+                    <th>No. Of Packages:</th><td><apex:inputField value="{!n.Number_Of_Packages__c}" /></td>
+                   <th>Weigth(In Kgs):</th><td><apex:inputField value="{!n.Weigth_In_Kgs__c}" /></td>
+                   <th>Volume(In Cu. Mts):</th><td><apex:inputField value="{!n.Volume_In_Cu_Mts__c}" /></td>
+                   
+               </tr>
+                     
+                     
+                     <tr> <th>Accesable Value:</th><td><apex:inputField value="{!n.Assesable_Value__c}" /></td>
+                    <th>Duty Value:</th><td><apex:inputField value="{!n.Duty_Value__c}" /></td>
+                   <th>Vessel Name:</th><td><apex:inputField value="{!n.Vessel_Name__c}" /></td>
+                   <th>Cargo Discription:</th><td><apex:inputField value="{!n.Cargo_Discription__c}" /></td>
+                  
+               </tr>
+
+    
+                </apex:repeat>
+            </thead>
+           
+      
+        </table>
+   
+    
+    <table>
+            
+        <thead>
+        <th>::::Container Details::::</th>
+        </thead>
+    </table>
+       
+        <table id="theTable" cellpadding='5' cellspacing='0' width='500px' class="containers">
+            
+            <style > 
+             
+            table.containers thead {color:blue;}
+table.containers tbody {color:green;}
+table.containers tfoot {color:red;}
+
+table.containers td{
+    border: 1px solid black;
+}
+</style>
+       
+            <thead>
+            <tr>
+                <th>Container No. </th>
+                <th>Size</th>
+                <th>Conatiner Type</th>
+                <th>Category </th>
+                <th>Tare Wt.</th>
+                <th>Delivery Mode</th>
+                 <th>Agent Seal No.</th>
+                <th>No. Of Packages</th>
+                <th>Weigth(In Kgs)</th>
+               <th>Fcl/LcL</th>
+                <th>Delivery No.</th>
+                </tr>
+            </thead>
+
+
+                <apex:variable value="{!i}"  var="index" />
+            <apex:repeat value="{!ccc}" var="m" >   
+                <tr>               
+                    <td><apex:inputfield value="{!m.Container_No__c}"  /></td>
+                    <td><apex:inputfield value="{!m.Container_Size__c}"  /></td>
+                    <td><apex:inputfield value="{!m.Container_Type__c}"/></td>
+                    <td><apex:inputfield value="{!m.Categary__c}"/></td>
+                    <td><apex:inputfield value="{!m.Tare_Wt__c}"/></td>
+                    <td><apex:inputfield value="{!m.Delivery_Mode__c}"/></td>
+                   <td><apex:inputfield value="{!m.Seal_No_1__c}"/></td>
+                     <td><apex:inputfield value="{!m.No_Of_Packages__c}"/></td>
+                    <td><apex:inputfield value="{!m.Weigth_In_Kgs__c}"/></td>
+                      <td><apex:inputfield value="{!m.FCL_LCL_mode__c}"/></td>    
+                    <td><apex:inputfield value="{!m.Delivery__c}"/></td>    
+                    
+                     <apex:variable var="index" value="{!index+1}" /> 
+               </tr>
+               </apex:repeat>
+
+          
+                   </table>
+        <apex:commandButton value="Save" action="{!save}"  />
+            <apex:commandButton value="Add" action="{!Add}"/>
+    <apex:commandButton value="Edit" action="{!Edit}"/>
+    
+     </apex:form>
+    
+   
+    
+    
+   
+</apex:page>

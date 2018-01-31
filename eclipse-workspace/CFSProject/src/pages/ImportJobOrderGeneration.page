@@ -105,10 +105,8 @@
            <apex:outputLabel value="Job Order Date" styleClass="Label"/>
 <!--                 <apex:inputField value="{!joborder.Job_Order_Date__c}" styleClass="inputText"/> -->
         </div>
-       
        </div>
        </div>
-        
         </div></div>
         <apex:outputPanel id="thePanel">
         <div >

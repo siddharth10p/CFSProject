@@ -1,10 +1,6 @@
 <apex:page controller="UploadCSVController" sidebar="False">
 <apex:sectionHeader title="Empty Cycle" subtitle="Job Order Generation(CSV Upload)" id="thesecH"/>
-<style>
-
-  .contentStyle { font-size:12px; }
-  .buttonStyle {height:100%; width:35%; background-color:green; text-align:center; padding-top:4px;}
-</style>
+<apex:stylesheet value="{!URLFOR($Resource.UploadCsvStyle)}" />
     <head>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -25,6 +21,16 @@
             </div>
         </apex:pageBlock>
         <apex:pageBlock >
+        <div align="center">
+        <table>
+        <thead>
+        <th>DO No.</th><td>
+        <apex:inputField value="{!jo.DO_No__c}"/>
+        </td>
+        <th>DO Valid Date</th><td>
+        <apex:inputField value="{!jo.DO_Valid_Date__c}"/>
+        </td>
+        </thead></table><hr/></div>
         <apex:outputPanel id="thePanel">
         <apex:variable var="rowCount" value="{!0}" />
         <apex:pageBlockTable value="{!contWrpList}" var="data" align="Center" style="width:70%">

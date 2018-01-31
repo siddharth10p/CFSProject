@@ -1,0 +1,206 @@
+<apex:page Controller="EmptyJobOrderOutController" sidebar="false">
+    <apex:stylesheet value="{!URLFOR($Resource.EmptyJobOrderStyle)}" />
+    <!-- Status Bar -->
+        <apex:outputpanel >
+          <apex:actionStatus id="statusBar" layout="block">
+           <apex:facet name="start">
+             <div id="assign-action-spinner-main">
+                <div id="assign-action-spinner-content">
+                <img src="{!$Resource.LoadingImg}" style="height:50px; width=30px;"
+                        alt="Processing..."  title="Processing..." />
+                  &nbsp; &nbsp;
+                  <p>Processing...</p>
+               </div>
+              </div>
+            </apex:facet>
+          </apex:actionStatus>
+        </apex:outputpanel>
+      <!-- End Of Status -->
+    <!-- <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <apex:stylesheet value="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/> -->    
+
+    <apex:sectionHeader title="Empty Cycle" subtitle="Empty Job Order Manual (IN/OUT)" />
+    <apex:form id="theForm" >
+        <div align="center"> <apex:commandButton value="New" immediate="true"
+            action="{!editFields}" reRender="theForm" status="statusBar"
+            styleClass="buttonStyle"  style="background:deepskyblue" />
+       <apex:commandButton Value="Search" styleClass="buttonStyle " 
+                                   style="background:deepskyblue"/></div>
+
+<apex:pageBlock >
+<table cellpadding='5' cellspacing='5' align="Center"  bgcolor="#E6E6FA" >  
+           <thead>
+           <tr> 
+                <th>Job Order</th><td title="Job Order">
+                <apex:inputField value="{!job.Job_Order_For__c}" styleClass="inputField"
+                    onChange="IdentifyType (this.value)"/></td>
+            </tr>
+            </thead>
+            </table><hr/>
+        <table cellpadding='5' cellspacing='5' width='500px'   align="Center">
+            <thead >
+            <tr>  
+                <th title="Account Holder">Account Holder:</th>
+                <td title="Account Holder"><apex:inputField value="{!job.Account_Holder__c}"
+                                                 styleClass="inputField"/></td> 
+                <th title="Line">Line:</th>
+                <td title="Line"><apex:inputField value="{!job.Line__c}" 
+                                                 styleClass="inputField"/></td>  
+                <th title="Liner Agent">Liner Agent:</th>
+                <td title="Liner Agent"><apex:inputField value="{!job.Liner_Agent__c}" 
+                                                 styleClass="inputField" /></td> 
+           </tr>
+           </thead>
+        </table>
+          <hr/>
+        <table cellpadding='5' cellspacing='5' width='500px'  align="Center"    >
+           <thead>
+           <tr>  
+                <th title="DO NO">DO NO:</th>
+                <td title="DO NO"><apex:inputField value="{!job.DO_No__c}" 
+                                                   styleClass="inputField"/></td> 
+                <th title="DO Valid Date">DO Valid Date:</th>
+                <td title="DO Valid Date"><apex:inputField value="{!job.DO_Valid_Date__c}" 
+                                                           styleClass="inputField"/></td>  
+                <!-- <th title="Tranporter">Tranporter:</th>
+                <td title="Tranporter"><apex:inputField value="{!con.Empty_Out_Transporter__c}" 
+                                       styleClass="inputField" /></td>
+                <th title="Transport Mode">Transport Mode:</th>
+                <td title="Transport Mode"><apex:inputField value="{!con.Empty_Out_Transporter_Mode__c}" 
+                                           styleClass="inputField" /></td> -->
+           </tr>
+           </thead>
+        </table>
+           <hr/>
+        <table cellpadding='5' cellspacing='5' width='500px'  align="Center">
+           <thead >
+           <tr>  
+               <th title="VCN No">VCN No:</th>  
+               <td title="VCN No">
+               <apex:inputField value="{!vesselvissit.VCN_VIA_No__c}" styleClass="inputField"/></td> 
+               <th title="Vessel Name">Vessel Name:</th>
+               <td title="Vessel Name">
+               <apex:inputField value="{!vesselvissit.Vessel_Name__c}" styleClass="inputField"
+                                onchange="fetchVesselDetails (this.value);"/></td> 
+               <th title="Voy No">Voy No:</th>
+               <td title="Voy No">
+               <apex:inputField value="{!vesselvissit.Voy_No__c}"  styleClass="inputField"/></td>  
+           </tr>
+           </thead>
+        </table>
+        <hr/>
+    <apex:outputPanel id="thePanel">
+    <div  style="height:200px;overflow:auto;" >
+    <table id="theTable" class="table table-bordered"  
+                  align="center" style="width:200px;border-collapse: collapse;border-spacing: 0;" >
+           <thead bgcolor="#E6E6FA">
+           <tr style="border: 1px solid #CCC;">
+               <th class="header">Sr No.</th>
+               <th class="header">Container No.</th>
+               <th class="header">ISO</th>
+               <th class="header">Size</th>
+               <th class="header">Cont. Type</th>
+           </tr>
+          </thead>
+         <tbody>
+                 <apex:variable var="rowCount" value="{!0}" />
+                 <apex:repeat value="{!containers}" var="contr">
+             <tr>
+                 <td class="contTable"> {!rowCount+1}</td>
+                 <td class="contTable">
+                 <apex:outputPanel rendered="{!!contGateOut}">
+                 <apex:inputfield value="{!contr.Name}"
+                                     styleClass="inputField" />
+                 </apex:outputPanel>
+                 <apex:outputPanel rendered="{!contGateOut}">
+                 <apex:inputfield value="{!contr.Name}" rendered="{!NOT(ISBLANK(contr.Name))}"/>
+                 <apex:inputfield value="{!contGateInObj.Container_No__c}"
+                                     styleClass="inputField" rendered="{!ISBLANK(contr.Name)}"
+                                     onchange="findContainer ('{!rowCount}-' + this.value);"/>
+                 </apex:outputPanel></td>
+                 <td class="contTable">
+                 <apex:inputfield value="{!contr.ISO__c}" 
+                                         styleClass="inputText lookupField" 
+                                         onchange="fetchISO ('{!rowCount}-' + this.value);"/></td>
+<!--                                          onchange="fetchISO ('{!index}-' + this.value);"   -->
+                 <td class="contTable">
+                 <apex:inputfield value="{!contr.Container_Size__c}"
+                                    styleClass="inputField"/></td>
+                 <td class="contTable">
+                 <apex:inputfield value="{!contr.Container_Type__c}"
+                                    styleClass="inputField"/></td>
+                 <apex:variable var="rowCount" value="{!rowCount+1}" />
+             </tr>
+                  </apex:repeat>
+           </tbody>
+          </table>
+        </div>
+       <hr/>
+    </apex:outputPanel>
+    </apex:pageBlock>
+        <div align="center" draggable="false" > 
+                  <apex:commandButton value="Save" action="{!saveData}"  status="statusBar" 
+                            styleClass="buttonStyle" 
+                             style="background:deepskyblue" 
+                             />
+                             <apex:commandButton value="Add"
+                action="{!addContainer}" reRender="thePanel" status="statusBar"/>
+     <!--   <apex:commandButton value="Edit" 
+                            action="{!editFields}" reRender="theForm" status="statusBar" 
+                            disabled="{!isEditMode}" />-->
+                   <apex:commandButton Value="Cancel" styleClass="buttonStyle "
+                     style="background:deepskyblue"/>
+       </div>
+       <apex:actionFunction name="fetchISO" action="{!fetchISO}" reRender="theForm"
+            status="statusBar">
+            <apex:param id="iso" name="iso" value=""/>
+       </apex:actionFunction>
+       <apex:actionFunction name="findContainer" action="{!findContainer}" reRender="theForm"
+            status="statusBar">
+            <apex:param id="contId" name="contnr" value=""/>
+       </apex:actionFunction>
+       <apex:actionfunction name="updateLookup" action="{!selectOutType}"
+            reRender="theForm" status="statusBar">
+        </apex:actionfunction>
+        <apex:actionfunction name="updateText" action="{!selectInType}"
+            reRender="theForm" status="statusBar">
+        </apex:actionfunction>
+        <apex:actionFunction name="fetchVesselDetails" action="{!fetchVesselDetails}"
+            reRender="theForm" status="statusBar">
+            <apex:param id="VesselDetails" name="VesselDetails" value=""/>
+       </apex:actionFunction>
+    </apex:form>
+    <apex:includeScript value="//code.jquery.com/jquery-1.12.4.js"/>
+    <apex:includeScript value="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"/>
+    <apex:includeScript value="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"/>
+    <apex:includeScript value="https://code.jquery.com/ui/1.12.1/jquery-ui.js"/>
+    <script>
+     window.onload = function() {
+        checkFields ();
+    };
+
+    function IdentifyType (pVal) {
+        if (pVal === 'OUT') {
+            updateLookup ();
+        }
+        if (pVal === 'IN') {
+            updateText ();
+        }
+    }
+    function checkFields () {
+        var edit = {!isEditMode};
+        if (edit === false) {
+            debugger;
+            var inputText = document.querySelectorAll(".inputText,.inputField") 
+            //document.getElementsByClassName ("inputText");
+            for(var i=0 ; inputText.length > i; i++) {
+                inputText[i].disabled = true;
+            }
+            var lookups = document.getElementsByClassName ("lookupIcon");
+            for(var i=0 ; lookups.length > i; i++) {
+                lookups[i].style.display = "none";
+            }
+        }
+    }
+</script>
+</apex:page>
